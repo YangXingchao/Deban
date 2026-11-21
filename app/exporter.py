@@ -7,6 +7,7 @@ import shutil
 import tempfile
 import time
 import zipfile
+import uuid
 
 from . import APP_VERSION, config, db
 
@@ -14,6 +15,9 @@ log = logging.getLogger("exporter")
 
 EXPORT_VERSION = 1
 FORMAT = "deban-export"
+MAX_ARCHIVE_UNCOMPRESSED = 4 * 1024 * 1024 * 1024
+MAX_ARCHIVE_JSON = 64 * 1024 * 1024
+MAX_ARCHIVE_ENTRIES = 20000
 
 MEETING_TABLES = ["utterances", "topics", "interventions", "near_misses", "meeting_participants",
                   "meeting_anon_labels", "audio_segments", "meeting_contexts", "my_facts"]
@@ -168,7 +172,13 @@ def import_archive(src: pathlib.Path, restore_voiceprints=False) -> dict:
         raise ImportError_("not a Deban export (zip expected)")
     summary = {"meetings": 0, "skipped": 0, "utterances": 0, "speakers_new": 0, "contexts_new": 0, "recordings": 0, "errors": []}
     with zipfile.ZipFile(src) as z, tempfile.TemporaryDirectory() as tmp:
-        names = set(z.namelist())
+        entries = z.infolist()
+        if (len(entries) > MAX_ARCHIVE_ENTRIES
+                or sum(entry.file_size for entry in entries) > MAX_ARCHIVE_UNCOMPRESSED
+                or any(entry.filename.endswith(".json") and entry.file_size > MAX_ARCHIVE_JSON for entry in entries)
+                or len({entry.filename for entry in entries}) != len(entries)):
+            raise ImportError_("archive exceeds limits or has duplicate entries")
+        names = {entry.filename for entry in entries}
         if "manifest.json" not in names:
             raise ImportError_("manifest.json missing")
         man = json.loads(z.read("manifest.json"))
@@ -213,10 +223,11 @@ def import_archive(src: pathlib.Path, restore_voiceprints=False) -> dict:
                 row = {k: v for k, v in c.items() if k not in ("id", "chunks", "file")}
                 if c.get("file") and c["file"] in names:
                     dest_dir = config.DATA_DIR / "contexts"; dest_dir.mkdir(parents=True, exist_ok=True)
-                    dest = dest_dir / pathlib.Path(c.get("path") or c["file"]).name
-                    if dest.exists():
-                        dest = dest_dir / f"{c['uuid']}{pathlib.Path(c['file']).suffix}"
-                    with z.open(c["file"]) as fsrc, open(dest, "wb") as fdst:
+                    suffix = pathlib.Path(c["file"]).suffix.lower()
+                    if len(suffix) > 16 or (suffix and not suffix[1:].isalnum()):
+                        raise ImportError_("invalid context file extension")
+                    dest = dest_dir / f"{uuid.uuid4().hex}{suffix}"
+                    with z.open(c["file"]) as fsrc, open(dest, "xb") as fdst:
                         shutil.copyfileobj(fsrc, fdst)
                     row["path"] = str(dest)
                 else:

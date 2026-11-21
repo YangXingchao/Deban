@@ -447,13 +447,16 @@ def context_list(q: str | None = None):
 @app.post("/api/context")
 async def context_upload(file: UploadFile = File(...), attach_to: int | None = None):
     suffix = pathlib.Path(file.filename or "f.txt").suffix or ".txt"
-    data = await file.read()
-    if len(data) > MAX_UPLOAD_BYTES:
-        return {"error": "too large"}
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as tmp:
-        tmp.write(data)
         tmp_path = tmp.name
     try:
+        size = 0
+        with open(tmp_path, "wb") as tmp:
+            while chunk := await file.read(1024 * 1024):
+                size += len(chunk)
+                if size > MAX_UPLOAD_BYTES:
+                    return {"error": "too large"}
+                tmp.write(chunk)
         if suffix.lower() in (".docx", ".pptx"):
             import zipfile
             try:
@@ -996,15 +999,20 @@ async def import_archive(file: UploadFile = File(...), voiceprints: int = 0):
     from . import exporter
     if pipeline.meeting_id or pipeline.archiving_ids:
         return {"error": "busy"}
-    data = await file.read()
-    if len(data) > 4 * 1024 * 1024 * 1024:
-        return {"error": "too large"}
     with tempfile.NamedTemporaryFile(suffix=".deban", delete=False) as tmp:
-        tmp.write(data); tmp_path = pathlib.Path(tmp.name)
+        tmp_path = pathlib.Path(tmp.name)
     try:
-        summary = exporter.import_archive(tmp_path, restore_voiceprints=bool(voiceprints))
-    except exporter.ImportError_ as e:
-        return {"error": str(e)}
+        size = 0
+        with tmp_path.open("wb") as tmp:
+            while chunk := await file.read(1024 * 1024):
+                size += len(chunk)
+                if size > 4 * 1024 * 1024 * 1024:
+                    return {"error": "too large"}
+                tmp.write(chunk)
+        try:
+            summary = exporter.import_archive(tmp_path, restore_voiceprints=bool(voiceprints))
+        except exporter.ImportError_ as e:
+            return {"error": str(e)}
     finally:
         tmp_path.unlink(missing_ok=True)
     try:

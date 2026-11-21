@@ -23,7 +23,7 @@ import json, time
 from app import db
 mid = db.insert("meetings", {"title": "t1", "started_at": time.time() - 600, "created_at": time.time(), "status": "done",
                              "summary": json.dumps([{"text": "p", "uid": 0}])})
-spk = db.insert("speakers", {"name": "田中", "created_at": time.time()})
+spk = db.insert("speakers", {"name": "デバン", "created_at": time.time()})
 u1 = db.insert("utterances", {"meeting_id": mid, "speaker_id": spk, "start_time": 1.0, "ts": time.time(), "text": "こんにちは太陽"})
 u2 = db.insert("utterances", {"meeting_id": mid, "speaker_id": 999, "start_time": 5.0, "ts": time.time(), "text": "匿名の発言"})
 db.execute("UPDATE meetings SET summary=? WHERE id=?", (json.dumps([{"text": "p", "uid": u1}]), mid))
@@ -174,8 +174,36 @@ print(json.dumps({{"s1": s1, "s2": s2,
             self.assertEqual(imp["s2"]["meetings"], 0)
             self.assertTrue(imp["summary_uid_valid"] and imp["topic_uid_valid"])
             self.assertEqual(imp["anon_label"], 1)
-            self.assertEqual(imp["named"], "田中")
+            self.assertEqual(imp["named"], "デバン")
             self.assertEqual(imp["fts"], 1)
+
+    def test_import_bounds_and_untrusted_context_filename(self):
+        with tempfile.TemporaryDirectory() as d:
+            out = run("""
+import json, pathlib, zipfile
+from app import config, exporter
+config.ensure_dirs()
+(config.DATA_DIR / 'contexts' / 'existing.txt').write_text('original')
+archive = config.DATA_DIR / 'test.deban'
+with zipfile.ZipFile(archive, 'w') as z:
+    z.writestr('manifest.json', json.dumps({'format': exporter.FORMAT, 'export_version': 1}))
+    z.writestr('contexts/item.json', json.dumps({'id': 1, 'uuid': '../../outside', 'name': 'Example', 'type': 'txt', 'created_at': 1, 'path': 'existing.txt', 'file': 'contexts/files/example.txt', 'chunks': []}))
+    z.writestr('contexts/files/example.txt', 'imported')
+exporter.import_archive(archive)
+from app import db
+row = db.query_one('SELECT path FROM contexts')
+imported = pathlib.Path(row['path'])
+exporter.MAX_ARCHIVE_UNCOMPRESSED = 1
+try:
+    exporter.import_archive(archive)
+    rejected = False
+except exporter.ImportError_:
+    rejected = True
+print(json.dumps({'inside': imported.parent == config.DATA_DIR / 'contexts', 'content': imported.read_text(),
+                  'original': (config.DATA_DIR / 'contexts' / 'existing.txt').read_text(),
+                  'outside': (config.DATA_DIR.parent / 'outside.txt').exists(), 'rejected': rejected}))
+""", pathlib.Path(d))
+            self.assertEqual(out, {"inside": True, "content": "imported", "original": "original", "outside": False, "rejected": True})
 
     def test_rejects_foreign_zip(self):
         with tempfile.TemporaryDirectory() as d:
