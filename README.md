@@ -29,6 +29,12 @@ uv run --frozen python main.py
 
 Open [http://127.0.0.1:8765](http://127.0.0.1:8765). The first launch downloads the local speech and speaker recognition models from Hugging Face. Allow about 600 MB for the models and additional space for dependencies and recordings. The service listens on loopback and is intended for a single computer.
 
+## Desktop builds
+
+Deban can also run in a standalone desktop window. On Apple Silicon Macs with macOS 15 or newer, install Xcode command-line tools, uv and Node.js 22, then run `./scripts/build-macos.sh`. The ad-hoc signed app is created at `dist/Deban.app`.
+
+On 64-bit Windows, install uv, Node.js 22, Rust and Tauri CLI 2, then run `./scripts/build-windows.ps1` in PowerShell. The installer is created under `src-tauri/target/release/bundle/`. Desktop builds capture system audio, including audio from other applications, and can optionally include the microphone. Grant the requested system permissions when prompted. The first launch downloads the speech models. These builds are not signed with an Apple or Windows developer certificate.
+
 ## Record a meeting
 
 1. Open the meeting in another browser tab.

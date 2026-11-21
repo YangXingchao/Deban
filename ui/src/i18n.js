@@ -381,6 +381,31 @@ Object.assign(I18N.en, {
   aiError_http_429: 'The provider rate limit was reached. Check your quota or try again later.',
 })
 
+Object.assign(I18N.zh, {
+  desktopAudioLost: '系统音频采集已停止，会议正在保存。请检查系统权限和音频设备。',
+  desktopWelcome: '欢迎使用 Deban', desktopPermissionIntro: '请设置会议所需的系统权限。会议中会采集系统声音，包括其他应用播放的声音。',
+  desktopScreen: '系统音频', desktopScreenHint: '允许屏幕与系统音频录制，以获取会议声音。录制会包含其他应用播放的系统声音。授权后如无法采集，请重新打开 Deban。',
+  desktopMic: '麦克风（可选）', desktopMicHint: '允许麦克风以记录自己的发言。',
+  desktopAllow: '设置权限', desktopGranted: '已允许', desktopContinue: '继续',
+  desktopPermissionError: '无法检查权限，请在系统设置中查看。', desktopPermissionLater: '也可以稍后在系统设置中更改。',
+})
+Object.assign(I18N.ja, {
+  desktopAudioLost: 'システム音声の取得が停止したため、会議を保存しています。システム権限と音声デバイスを確認してください。',
+  desktopWelcome: 'Deban へようこそ', desktopPermissionIntro: '会議に必要なシステム権限を設定してください。会議中は他のアプリを含むシステム音声を取得します。',
+  desktopScreen: 'システム音声', desktopScreenHint: '会議音声を取得するため、画面とシステム音声の収録を許可してください。他のアプリのシステム音声も収録されます。許可後に取得できない場合は Deban を再起動してください。',
+  desktopMic: 'マイク（任意）', desktopMicHint: '自分の発言を記録する場合はマイクを許可してください。',
+  desktopAllow: '権限を設定', desktopGranted: '許可済み', desktopContinue: '続ける',
+  desktopPermissionError: '権限を確認できません。システム設定を確認してください。', desktopPermissionLater: '後からシステム設定で変更できます。',
+})
+Object.assign(I18N.en, {
+  desktopAudioLost: 'System audio capture stopped. The meeting is being saved. Check system permissions and audio devices.',
+  desktopWelcome: 'Welcome to Deban', desktopPermissionIntro: 'Set up the permissions needed for meetings. System audio, including audio from other apps, is captured during a meeting.',
+  desktopScreen: 'System audio', desktopScreenHint: 'Allow screen and system audio recording. System audio from other apps is also captured. If capture is unavailable after granting access, reopen Deban.',
+  desktopMic: 'Microphone (optional)', desktopMicHint: 'Allow microphone access to record your own speech.',
+  desktopAllow: 'Set permission', desktopGranted: 'Allowed', desktopContinue: 'Continue',
+  desktopPermissionError: 'Could not check permissions. Check your system settings.', desktopPermissionLater: 'You can change these permissions later in system settings.',
+})
+
 I18N['zh-Hant'] = I18N.zh
 
 function systemLang() {

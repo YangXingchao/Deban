@@ -29,6 +29,12 @@ uv run --frozen python main.py
 
 [http://127.0.0.1:8765](http://127.0.0.1:8765) を開きます。初回起動時に Hugging Face からローカルの音声認識モデルと話者認識モデルをダウンロードします。モデルには約 600 MB が必要で、依存関係と録音には別途空き容量が必要です。サービスはローカルのループバックアドレスで待ち受け、1 台のコンピューターで使用します。
 
+## デスクトップ版のビルド
+
+Deban は独立したデスクトップウィンドウでも利用できます。Apple Silicon と macOS 15 以降の Mac で Xcode コマンドラインツール、uv、Node.js 22 をインストールし、`./scripts/build-macos.sh` を実行すると `dist/Deban.app` が生成されます。
+
+64 ビット Windows では uv、Node.js 22、Rust、Tauri CLI 2 をインストールし、PowerShell で `./scripts/build-windows.ps1` を実行してください。インストーラーは `src-tauri/target/release/bundle/` に生成されます。デスクトップ版は他のアプリを含むシステム音声を取得し、マイク音声も選択できます。画面の案内に従い権限を許可してください。初回起動時に音声モデルがダウンロードされます。Apple または Windows の開発者証明書による署名は行いません。
+
 ## 会議を録音する
 
 1. ブラウザの別のタブで会議を開きます。

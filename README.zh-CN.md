@@ -29,6 +29,12 @@ uv run --frozen python main.py
 
 打开 [http://127.0.0.1:8765](http://127.0.0.1:8765)。首次启动会从 Hugging Face 下载本地语音识别和说话人识别模型，模型约需 600 MB，依赖和录音需要额外空间。服务只监听本机回环地址，供单台电脑使用。
 
+## 桌面版构建
+
+Deban 也可以在独立桌面窗口中运行。在 Apple Silicon、macOS 15 或更高版本上，安装 Xcode 命令行工具、uv 和 Node.js 22，然后运行 `./scripts/build-macos.sh`，应用生成在 `dist/Deban.app`。
+
+在 64 位 Windows 上，安装 uv、Node.js 22、Rust 和 Tauri CLI 2，在 PowerShell 中运行 `./scripts/build-windows.ps1`，安装包生成在 `src-tauri/target/release/bundle/`。桌面版采集系统声音，包括其他应用的声音，也可以选择录制麦克风；请按提示授予系统权限。首次启动会下载语音模型。构建结果未使用 Apple 或 Windows 开发者证书签名。
+
 ## 录制会议
 
 1. 在浏览器的另一个标签页打开会议。
