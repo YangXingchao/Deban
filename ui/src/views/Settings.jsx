@@ -11,11 +11,23 @@ function useSaved() {
   return [saved, flash]
 }
 
-export default function Settings({ mode, llmOn }) {
-  const live = mode && mode !== 'idle'
-  const Lock = ({ children }) => live
+function Lock({ live, children }) {
+  return live
     ? <div className="lock-wrap" title={T('lockedInMeeting')}><div className="lock-inner">{children}</div></div>
     : children
+}
+
+function Switch({ checked, onChange }) {
+  return (
+    <label className="switch">
+      <input type="checkbox" checked={checked} onChange={onChange} />
+      <span className="tr" />
+    </label>
+  )
+}
+
+export default function Settings({ mode, llmOn }) {
+  const live = mode && mode !== 'idle'
   const [cfg, setCfg] = useState(null)
   const [prof, setProf] = useState(null)
   const [terms, setTerms] = useState('')
@@ -59,13 +71,6 @@ export default function Settings({ mode, llmOn }) {
   }
   const rmExp = (v) => setProf({ ...prof, expertise: (prof.expertise || []).filter((x) => x !== v) })
 
-  const Switch = ({ checked, onChange }) => (
-    <label className="switch">
-      <input type="checkbox" checked={checked} onChange={onChange} />
-      <span className="tr" />
-    </label>
-  )
-
   if (!cfg || !prof) return <div className="empty">…</div>
   return (
     <div className="settings">
@@ -89,7 +94,7 @@ export default function Settings({ mode, llmOn }) {
       </div>
       <div className="card set-card">
       <h3>{T('setSecRecord')}</h3>
-      <Lock>
+      <Lock live={live}>
       <div className="toggle-row">
         <Switch checked={!!cfg.record_audio} onChange={(e) => saveCfg({ record_audio: e.target.checked })} />
         {T('record')}<InfoTip>{T('perMeetingHint')}</InfoTip>
@@ -103,7 +108,7 @@ export default function Settings({ mode, llmOn }) {
 
       <div className="card set-card">
       <h3>{T('setSecAlerts')}</h3>
-      <Lock><fieldset disabled={!llmOn} className="ai-feature-controls" title={!llmOn ? T('aiUnavailable') : undefined}><div className="form-row" style={{ alignItems: 'flex-start' }}>
+      <Lock live={live}><fieldset disabled={!llmOn} className="ai-feature-controls" title={!llmOn ? T('aiUnavailable') : undefined}><div className="form-row" style={{ alignItems: 'flex-start' }}>
         <label>{T('alertTypes')}<InfoTip>{T('alertTypesHint')}</InfoTip></label>
         <div className="alert-controls">
           <div className="toggle-row">
@@ -125,7 +130,7 @@ export default function Settings({ mode, llmOn }) {
 
       <div className="card set-card">
       <h3>{T('setSecMeeting')}</h3>
-      <Lock><div className="form-row">
+      <Lock live={live}><div className="form-row">
         <label>{T('autoEnd')}<InfoTip>{T('autoEndHint')}</InfoTip></label>
         <select value={String(cfg.auto_end_min ?? 10)} onChange={(e) => saveCfg({ auto_end_min: Number(e.target.value) })}>
           <option value="0">{T('autoEndOff')}</option>
@@ -142,7 +147,7 @@ export default function Settings({ mode, llmOn }) {
       <>
       <div className="card set-card">
       <h3>{T('profile')}{(savedProf || savedCfg) && <span className="saved-tip">{T('settingsSaved')}</span>}</h3>
-      <Lock>
+      <Lock live={live}>
       <div className="form-row">
         <label>{T('selfName')}</label>
         <input type="text" defaultValue={cfg.self_name} maxLength={20}
@@ -187,7 +192,7 @@ export default function Settings({ mode, llmOn }) {
       <div className="card set-card">
       <h3>{T('glossary')}{savedGl && <span className="saved-tip">{T('settingsSaved')}</span>}</h3>
       <div className="hint">{T('glossaryHint')}</div>
-      <Lock>
+      <Lock live={live}>
       <textarea rows={6} value={terms} onChange={(e) => setTerms(e.target.value)} />
       <div style={{ marginTop: 10 }}><button className="primary" onClick={saveGlossary}>{T('save')}</button></div>
       </Lock>
@@ -195,8 +200,8 @@ export default function Settings({ mode, llmOn }) {
       </>
       )}
 
-      {tab === 'data' && <Lock><DataCard /></Lock>}
-      {tab === 'data' && <Lock><TrashCard /></Lock>}
+      {tab === 'data' && <Lock live={live}><DataCard /></Lock>}
+      {tab === 'data' && <Lock live={live}><TrashCard /></Lock>}
     </div>
   )
 }
