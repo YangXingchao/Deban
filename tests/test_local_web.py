@@ -1,4 +1,5 @@
 import pathlib
+import os
 import tempfile
 import unittest
 
@@ -163,7 +164,8 @@ print(json.dumps({
         self.assertFalse(result["exposed"])
         self.assertFalse(result["exported"])
         self.assertEqual(result["changed_endpoint"], "missing_key")
-        self.assertEqual(result["mode"], 0o600)
+        if os.name != "nt":
+            self.assertEqual(result["mode"], 0o600)
         self.assertTrue(result["restored"])
         self.assertTrue(result["cleared"])
         self.assertTrue(result["file_removed"])

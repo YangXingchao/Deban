@@ -9,8 +9,10 @@ $Hash = '7c45c9622400d578709a9b2cddbe8124cc21d382409d9f13406d706d28e31b14'
 foreach ($cmd in @('uv', 'npm', 'cargo', 'tar')) {
   if (-not (Get-Command $cmd -ErrorAction SilentlyContinue)) { throw "$cmd is required" }
 }
-& cargo tauri --version
-if ($LASTEXITCODE -ne 0) { throw 'Install tauri-cli version 2 with cargo install tauri-cli --version ^2 --locked' }
+$TauriCommand = Get-Command tauri -ErrorAction SilentlyContinue
+if ($TauriCommand) { & $TauriCommand.Source --version }
+else { & cargo tauri --version }
+if ($LASTEXITCODE -ne 0) { throw 'Install Tauri CLI 2 with npm install -g @tauri-apps/cli@2.12.6 or cargo install tauri-cli --version ^2 --locked' }
 New-Item -ItemType Directory -Force $Cache | Out-Null
 $Archive = Join-Path $Cache $Name
 if (-not (Test-Path $Archive)) {
@@ -72,7 +74,8 @@ try {
   if (-not (Test-Path (Join-Path $AppRoot 'main.pyc')) -or @(Get-ChildItem -Path (Join-Path $AppRoot 'app') -Filter '*.py' -File -Recurse).Count -ne 0) { throw 'Backend source stripping failed' }
   Push-Location $Tauri
   try {
-    & cargo tauri build
+    if ($TauriCommand) { & $TauriCommand.Source build }
+    else { & cargo tauri build }
     if ($LASTEXITCODE -ne 0) { throw 'Windows application build failed' }
   } finally { Pop-Location }
 } finally { Pop-Location }
