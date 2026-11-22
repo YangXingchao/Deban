@@ -1,6 +1,5 @@
 import json
 import logging
-import os
 import pathlib
 import queue as _q
 import tempfile
@@ -42,69 +41,11 @@ async def same_origin_guard(request, call_next):
 UI_DIST = pathlib.Path(__file__).resolve().parents[1] / "ui" / "dist"
 MAX_UPLOAD_BYTES = 10 * 1024 * 1024
 MAX_MEETING_CTX = 5
-DESKTOP_NATIVE_AUDIO = os.environ.get("MC_DESKTOP_NATIVE_AUDIO") == "1"
-_desktop_mic_granted = False
-if DESKTOP_NATIVE_AUDIO:
-    from .audio.desktop import DesktopCapture
-    desktop_capture = DesktopCapture(pipeline)
-    pipeline.native_capture_stop = desktop_capture.stop
 
 
 def _ctx_full(mid):
     r = db.query_one("SELECT COUNT(*) c FROM meeting_contexts WHERE meeting_id=?", (mid,))
     return (r["c"] if r else 0) >= MAX_MEETING_CTX
-
-
-class DesktopPermissionIn(BaseModel):
-    kind: str
-
-
-@app.get("/api/desktop/onboarding")
-def desktop_onboarding():
-    if not DESKTOP_NATIVE_AUDIO:
-        raise HTTPException(404)
-    return {"completed": config.get("desktop_onboarded")}
-
-
-@app.post("/api/desktop/onboarding")
-def complete_desktop_onboarding():
-    if not DESKTOP_NATIVE_AUDIO:
-        raise HTTPException(404)
-    config.update({"desktop_onboarded": True})
-    return {"completed": True}
-
-
-@app.get("/api/desktop/permissions")
-def desktop_permissions():
-    if not DESKTOP_NATIVE_AUDIO:
-        raise HTTPException(404)
-    import sys
-    if sys.platform == "win32":
-        from .audio.windows import mic_access_denied
-        denied = mic_access_denied()
-        return {"screen": None, "mic": _desktop_mic_granted and not denied, "micDenied": denied}
-    return {"screen": None, "mic": False}
-
-
-@app.post("/api/desktop/permissions")
-def request_desktop_permission(body: DesktopPermissionIn):
-    global _desktop_mic_granted
-    if not DESKTOP_NATIVE_AUDIO:
-        raise HTTPException(404)
-    import sys
-    if sys.platform != "win32" or body.kind != "mic":
-        raise HTTPException(400)
-    try:
-        from .audio.windows import _ensure_com, mic_access_denied
-        import soundcard
-        _ensure_com()
-        with soundcard.default_microphone().recorder(samplerate=16000, channels=1) as recorder:
-            recorder.record(numframes=1600)
-        _desktop_mic_granted = True
-        return {"screen": None, "mic": True, "micDenied": False}
-    except Exception:
-        log.warning("Unable to open microphone during permission setup")
-        return {"screen": None, "mic": False, "micDenied": mic_access_denied()}
 
 
 @app.get("/api/models/status")
@@ -149,13 +90,6 @@ def meeting_start(s: StartIn):
                                  s.context_prios, s.prev_meeting_id, mic=s.mic)
     if mid is None:
         return {"error": "busy"}
-    if DESKTOP_NATIVE_AUDIO:
-        try:
-            desktop_capture.start(mid)
-        except Exception:
-            log.exception("Unable to start desktop audio capture")
-            pipeline.end_meeting(expected_mid=mid)
-            return {"error": "capture_unavailable"}
     return {"meeting_id": mid, "state": pipeline.state}
 
 
@@ -282,8 +216,7 @@ def meeting_resume():
 
 @app.post("/api/meeting/end")
 def meeting_end():
-    mid = pipeline.end_meeting()
-    return {"meeting_id": mid, "state": pipeline.state}
+    return {"meeting_id": pipeline.end_meeting(), "state": pipeline.state}
 
 
 @app.get("/api/transcript")
@@ -1226,10 +1159,7 @@ if UI_DIST.exists():
 
     @app.get("/", response_class=HTMLResponse)
     def index():
-        html = (UI_DIST / "index.html").read_text()
-        if DESKTOP_NATIVE_AUDIO:
-            html = html.replace("</head>", "<script>window.__DEBAN_DESKTOP__ = true</script></head>")
-        return HTMLResponse(html)
+        return HTMLResponse((UI_DIST / "index.html").read_text())
 else:
     @app.get("/", response_class=HTMLResponse)
     def index_placeholder():

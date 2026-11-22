@@ -26,7 +26,6 @@ DATA_DIR = _resolve_data_dir()
 
 
 DEFAULTS = {
-    "desktop_onboarded": False,
     "port": 8765,
     "src_lang": "ja",
     "out_lang": "zh",
