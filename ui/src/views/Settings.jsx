@@ -35,10 +35,12 @@ export default function Settings({ mode, llmOn }) {
   const [savedProf, flashProf] = useSaved()
   const [savedGl, flashGl] = useSaved()
   const [tab, setTab] = useState('general')
+  const [version, setVersion] = useState(null)
   useEffect(() => {
     api('/settings').then(setCfg)
     api('/profile').then(setProf)
     api('/glossary').then((g) => setTerms((g || []).join('\n')))
+    api('/status', { quiet: true }).then((status) => setVersion(status?.version || null))
   }, [])
 
   const saveCfg = async (patch) => {
@@ -137,6 +139,15 @@ export default function Settings({ mode, llmOn }) {
           {[5, 10, 15, 30].map((n) => <option key={n} value={String(n)}>{T('autoEndMin', n)}</option>)}
         </select>
       </div></Lock>
+      </div>
+      <div className="card set-card">
+        <h3>{T('aboutTitle')}</h3>
+        <p className="hint">{T('aboutDescription')}</p>
+        {version && <div className="about-version">{T('aboutVersion')}: {version}</div>}
+        <div className="about-links">
+          <a href="https://deban.app" target={window.__DEBAN_DESKTOP__ ? undefined : '_blank'} rel="noopener noreferrer">{T('aboutWebsite')}</a>
+          <a href="https://github.com/YangXingchao/Deban" target={window.__DEBAN_DESKTOP__ ? undefined : '_blank'} rel="noopener noreferrer">GitHub</a>
+        </div>
       </div>
       </>
       )}

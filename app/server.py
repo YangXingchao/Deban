@@ -104,7 +104,12 @@ def request_desktop_permission(body: DesktopPermissionIn):
         return {"screen": None, "mic": True, "micDenied": False}
     except Exception:
         log.warning("Unable to open microphone during permission setup")
-        return {"screen": None, "mic": False, "micDenied": mic_access_denied()}
+        try:
+            os.startfile("ms-settings:privacy-microphone")
+        except OSError:
+            log.exception("Unable to open Windows microphone settings")
+            raise HTTPException(500, "Unable to open microphone settings")
+        return {"screen": None, "mic": False, "micDenied": mic_access_denied(), "settingsOpened": True}
 
 
 @app.get("/api/models/status")
