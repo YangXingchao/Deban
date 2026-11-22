@@ -2,31 +2,14 @@ import { useEffect, useState } from 'react'
 import { T } from '../i18n.js'
 import { api } from '../api.js'
 import StartPanel from '../components/StartPanel.jsx'
-import { IcLive, IcMsg, IcBell, IcClockMini } from '../components/Icons.jsx'
+import { IcLive } from '../components/Icons.jsx'
 
 export default function Home({ mode, ctl, goHistory, llmOn }) {
   const [list, setList] = useState([])
   useEffect(() => { api('/history').then((r) => setList(r || [])) }, [mode])
 
-  const totalMin = Math.round(list.reduce((s, m) => s + (m.duration || 0), 0) / 60)
-  const totalResp = list.reduce((s, m) => s + (m.responds || 0), 0)
-
   return (
     <div className="home">
-      <div className="stat-grid">
-        <div className="card stat">
-          <div className="k"><IcMsg size={14} />{T('statMeetings')}</div>
-          <div className="v">{list.length}</div>
-        </div>
-        <div className="card stat">
-          <div className="k"><IcClockMini size={14} />{T('statMinutes')}</div>
-          <div className="v">{totalMin}<small>{T('minUnit')}</small></div>
-        </div>
-        <div className="card stat">
-          <div className="k"><IcBell size={14} />{T('statResponds')}</div>
-          <div className="v">{totalResp}</div>
-        </div>
-      </div>
       <div className="home-grid">
         <div className="card start-card">
           <h3><IcLive size={15} />{mode === 'idle' ? T('startMeeting') : T('listening')}</h3>
