@@ -67,7 +67,7 @@ try {
   Get-ChildItem -Path (Join-Path $AppRoot 'app') -Directory -Filter '__pycache__' -Recurse | Remove-Item -Recurse -Force
   Copy-Item (Join-Path $Root 'main.py') $AppRoot
   Copy-Item -Recurse (Join-Path $Root 'ui\dist') (Join-Path $AppRoot 'ui')
-  & $Python -m compileall -q -b (Join-Path $AppRoot 'app') (Join-Path $AppRoot 'main.py')
+  & $Python -m compileall -q -b -s $AppRoot -p '.' (Join-Path $AppRoot 'app') (Join-Path $AppRoot 'main.py')
   if ($LASTEXITCODE -ne 0) { throw 'Backend bytecode compilation failed' }
   Get-ChildItem -Path (Join-Path $AppRoot 'app') -Filter '*.py' -File -Recurse | Remove-Item -Force
   Remove-Item -LiteralPath (Join-Path $AppRoot 'main.py') -Force

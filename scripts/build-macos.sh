@@ -34,7 +34,7 @@ cp -R ui/dist "$APP/Contents/Resources/backend/approot/ui/"
 # Match the production packaging: ship Deban's bytecode without its Python
 # sources. Third-party sources stay intact because some libraries inspect them.
 APPROOT="$APP/Contents/Resources/backend/approot"
-"$PY" -m compileall -q -b "$APPROOT/app" "$APPROOT/main.py"
+"$PY" -m compileall -q -b -s "$APPROOT" -p . "$APPROOT/app" "$APPROOT/main.py"
 find "$APPROOT/app" -type f -name '*.py' -delete
 rm "$APPROOT/main.py"
 find "$APPROOT/app" -type d -name __pycache__ -prune -exec rm -rf {} +
@@ -45,8 +45,12 @@ swiftc -O -target arm64-apple-macos15.0 native/mac/main.swift native/mac/NativeA
 # TCC identifies ad-hoc builds by their code hash, which changes on each build.
 # Prefer the same Developer ID identity as the validated desktop build so
 # permissions continue to match across rebuilds. CI can still build ad-hoc.
-SIGN_ID="${DEBAN_MAC_SIGN_ID:-Developer ID Application: Xingchao Yang (969VZL2M22)}"
-if security find-identity -v -p codesigning | grep -Fq "\"$SIGN_ID\""; then
+SIGN_ID="${DEBAN_MAC_SIGN_ID:-}"
+if [ -z "$SIGN_ID" ]; then
+  IDENTITIES="$(security find-identity -v -p codesigning | sed -n 's/.*"\(Developer ID Application: [^"]*\)".*/\1/p')"
+  if [ "$(printf '%s\n' "$IDENTITIES" | grep -c . || true)" = 1 ]; then SIGN_ID="$IDENTITIES"; fi
+fi
+if [ -n "$SIGN_ID" ] && security find-identity -v -p codesigning | grep -Fq "\"$SIGN_ID\""; then
   codesign --force --deep --sign "$SIGN_ID" "$APP"
 else
   printf '%s\n' 'No configured Developer ID found; using ad-hoc signing. macOS permissions may need to be granted again after a rebuild.' >&2

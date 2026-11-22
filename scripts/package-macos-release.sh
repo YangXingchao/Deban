@@ -3,11 +3,15 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SOURCE="$ROOT/dist/Deban.app"
-SIGN_ID="${DEBAN_MAC_SIGN_ID:-Developer ID Application: Xingchao Yang (969VZL2M22)}"
+SIGN_ID="${DEBAN_MAC_SIGN_ID:-}"
+if [ -z "$SIGN_ID" ]; then
+  IDENTITIES="$(security find-identity -v -p codesigning | sed -n 's/.*"\(Developer ID Application: [^"]*\)".*/\1/p')"
+  if [ "$(printf '%s\n' "$IDENTITIES" | grep -c . || true)" = 1 ]; then SIGN_ID="$IDENTITIES"; fi
+fi
 PROFILE="${DEBAN_NOTARY_PROFILE:-deban}"
 ENTS="$ROOT/native/mac/entitlements.plist"
 [ -d "$SOURCE" ] || { echo 'Build dist/Deban.app first with scripts/build-macos.sh' >&2; exit 1; }
-security find-identity -v -p codesigning | grep -Fq "\"$SIGN_ID\"" || { echo 'Developer ID signing identity not found' >&2; exit 1; }
+[ -n "$SIGN_ID" ] && security find-identity -v -p codesigning | grep -Fq "\"$SIGN_ID\"" || { echo 'Set DEBAN_MAC_SIGN_ID to an available Developer ID signing identity' >&2; exit 1; }
 # Fail before copying/signing if Apple cannot access this account.
 xcrun notarytool history --keychain-profile "$PROFILE" >/dev/null
 VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$SOURCE/Contents/Info.plist")
