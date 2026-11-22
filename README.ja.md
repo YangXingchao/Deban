@@ -24,7 +24,7 @@ Deban はデスクトップアプリまたはブラウザで動作し、会議�
 
 ### Windows デスクトップ版
 
-Windows x64 インストーラーは準備中です。[GitHub Releases](https://github.com/YangXingchao/Deban/releases) で公開状況を確認してください。デスクトップ版ではシステム音声と、必要に応じてマイク音声を取得します。
+[Deban Windows x64 インストーラーをダウンロード](https://github.com/YangXingchao/Deban/releases/download/v1.0.9/Deban_1.0.9_x64-setup.exe)。インストーラーを実行して Deban を起動します。ローカルバックエンドは同梱されています。インストーラーは未署名です。必要に応じてマイクを許可してください。初回起動時に音声モデルをダウンロードします。
 
 ### ソースから Web 版を起動
 

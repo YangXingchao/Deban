@@ -24,7 +24,7 @@ Deban runs as a desktop app or in your browser and transcribes meeting audio on 
 
 ### Windows desktop app
 
-A Windows x64 installer is being prepared. Check [GitHub Releases](https://github.com/YangXingchao/Deban/releases) for availability. Desktop builds capture system audio and can include the microphone.
+[Download Deban for Windows x64](https://github.com/YangXingchao/Deban/releases/download/v1.0.9/Deban_1.0.9_x64-setup.exe). Run the installer and launch Deban; the local backend is included. The installer is unsigned. Allow microphone access when prompted; the first launch downloads speech models.
 
 ### Web app from source
 

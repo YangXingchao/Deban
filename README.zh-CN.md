@@ -24,7 +24,7 @@ Deban 可作为桌面应用或在浏览器中运行，在电脑本地转写会�
 
 ### Windows 桌面版
 
-Windows x64 安装包正在准备中，请在 [GitHub Releases](https://github.com/YangXingchao/Deban/releases) 查看发布状态。桌面版可采集系统音频，也可选择加入麦克风。
+[下载 Deban Windows x64 安装包](https://github.com/YangXingchao/Deban/releases/download/v1.0.9/Deban_1.0.9_x64-setup.exe)。运行安装程序后打开 Deban，应用已包含本地后端。安装包未签名；请按提示允许麦克风访问，首次启动会下载语音模型。
 
 ### 从源码运行 Web 版
 
