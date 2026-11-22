@@ -390,6 +390,7 @@ Object.assign(I18N.zh, {
   desktopOpenSettings: '打开系统设置', desktopScreenRequested: '如果没有弹出权限请求，请打开系统设置，在“屏幕与系统音频录制”中允许 Deban。',
   obSub: '完成权限、个人称呼和语音模型的设置，之后可随时调整。', obWaiting: '等待系统对话框…', obOptional: '可选', obRemove: '移除', obSkip: '跳过', obLater: '稍后设置，先进入', obStart: '开始使用', onboardNamesDesc: '填写同事会怎样叫你，可添加姓名、昵称或常见同音写法。', obModel: '准备语音模型', obModelDesc: '语音识别和话者识别在本设备运行，首次使用需要下载模型。', obModelDl: '正在下载…', obModelWait: '正在准备…', obModelErr: '模型准备失败，请重试。',
   desktopPermissionError: '无法检查权限，请在系统设置中查看。', desktopPermissionLater: '也可以稍后在系统设置中更改。',
+  desktopWindowsMicSettings: '请在 Windows 设置中允许麦克风访问和桌面应用访问麦克风，然后返回并再次点击按钮。',
 })
 Object.assign(I18N.ja, {
   desktopAudioLost: 'システム音声の取得が停止したため、会議を保存しています。システム権限と音声デバイスを確認してください。',
@@ -400,6 +401,7 @@ Object.assign(I18N.ja, {
   desktopOpenSettings: 'システム設定を開く', desktopScreenRequested: '許可のダイアログが表示されない場合は、システム設定の「画面とシステム音声の収録」で Deban を許可してください。',
   obSub: '権限・呼び名・音声モデルを設定します。あとから変更できます。', obWaiting: 'システムのダイアログを待っています…', obOptional: '任意', obRemove: '削除', obSkip: 'スキップ', obLater: 'あとで設定して始める', obStart: '始める', onboardNamesDesc: '同僚から呼ばれる名前・ニックネーム・よくある同音表記を追加できます。', obModel: '音声モデルの準備', obModelDesc: '音声認識と話者認識はこの端末上で動きます。初回だけモデルをダウンロードします。', obModelDl: 'ダウンロード中…', obModelWait: '準備中…', obModelErr: 'モデルの準備に失敗しました。再試行してください。',
   desktopPermissionError: '権限を確認できません。システム設定を確認してください。', desktopPermissionLater: '後からシステム設定で変更できます。',
+  desktopWindowsMicSettings: 'Windows の設定でマイクへのアクセスとデスクトップアプリのマイクへのアクセスを許可し、戻ってもう一度ボタンを押してください。',
 })
 Object.assign(I18N.en, {
   desktopAudioLost: 'System audio capture stopped. The meeting is being saved. Check system permissions and audio devices.',
@@ -410,6 +412,7 @@ Object.assign(I18N.en, {
   desktopOpenSettings: 'Open System Settings', desktopScreenRequested: 'If no permission prompt appears, open System Settings and allow Deban under Screen & System Audio Recording.',
   obSub: 'Set permissions, the names people use for you, and the speech model. You can change them later.', obWaiting: 'Waiting for the system dialog…', obOptional: 'optional', obRemove: 'Remove', obSkip: 'Skip', obLater: 'Set up later, enter now', obStart: 'Start', onboardNamesDesc: 'Add the names, nicknames or common homophones colleagues use for you.', obModel: 'Prepare speech models', obModelDesc: 'Speech and speaker recognition run on this device. Models are downloaded on first use.', obModelDl: 'Downloading…', obModelWait: 'Preparing…', obModelErr: 'Model preparation failed. Please retry.',
   desktopPermissionError: 'Could not check permissions. Check your system settings.', desktopPermissionLater: 'You can change these permissions later in system settings.',
+  desktopWindowsMicSettings: 'Allow microphone access and desktop app access in Windows Settings, then return and click the button again.',
 })
 
 I18N['zh-Hant'] = I18N.zh

@@ -10,6 +10,7 @@ export default function DesktopOnboarding({ onDone }) {
   const [busy, setBusy] = useState('')
   const [error, setError] = useState(false)
   const [screenRequested, setScreenRequested] = useState(false)
+  const [micSettingsOpened, setMicSettingsOpened] = useState(false)
   const permissionActive = useRef(false)
   const permissionReturnedAt = useRef(0)
   const finishArmedAt = useRef(0)
@@ -35,6 +36,7 @@ export default function DesktopOnboarding({ onDone }) {
     if (kind === 'screen') setScreenRequested(true)
     try {
       const value = bridge ? await bridge.postMessage(kind) : await post('/desktop/permissions', { kind }, { quiet: true })
+      if (value?.settingsOpened) setMicSettingsOpened(true)
       if (value) setPerm(value); else setError(true)
     } catch { setError(true) }
     finally { permissionReturnedAt.current = Date.now(); permissionActive.current = false; setBusy('') }
@@ -81,8 +83,9 @@ export default function DesktopOnboarding({ onDone }) {
     </Step>}
     <Step n={screenRelevant ? 2 : 1} ok={micOk} optional title={T('desktopMic')} desc={T('desktopMicHint')}>
       <button disabled={!!busy} onClick={() => request(bridge && perm?.micDenied ? 'micSettings' : 'mic')}>
-        {busy ? T('obWaiting') : bridge && perm?.micDenied ? T('desktopOpenSettings') : T('desktopAllow')}
+        {busy ? T('obWaiting') : (bridge && perm?.micDenied) || micSettingsOpened ? T('desktopOpenSettings') : T('desktopAllow')}
       </button>
+      {micSettingsOpened && <div className="ob-hint" role="status">{T('desktopWindowsMicSettings')}</div>}
     </Step>
     <Step n={screenRelevant ? 3 : 2} title={T('myNames')} desc={T('onboardNamesDesc')}>
       <div className="ob-name-list chip-select">{names.map(name => <span className="chip on" key={name}>{name}
