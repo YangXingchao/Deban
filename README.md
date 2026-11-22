@@ -8,7 +8,7 @@ Deban runs as a desktop app or in your browser and transcribes meeting audio on 
 
 ## Features
 
-- **Live transcription and recording** — Capture audio shared from a browser tab, optionally include your microphone, and transcribe Japanese, Chinese or English locally. Save recordings and follow the transcript as the meeting progresses.
+- **Live transcription and recording** — Capture system audio in the desktop app or audio shared from a browser tab in the web app, optionally include your microphone, and transcribe Japanese, Chinese or English locally. Save recordings and follow the transcript as the meeting progresses.
 - **Speaker management** — Recognize speakers with local voiceprints, identify your own microphone channel, manage participants and correct speaker assignments.
 - **Meeting assistance** — Configure an AI provider to translate speech, identify moments when you may want to respond, suggest replies in different tones, and generate topic summaries, decisions and action items.
 - **Meeting context** — Add a meeting brief, personal profile, glossary and reference documents. Select materials and their priority for each meeting, and carry context forward from an earlier meeting.
@@ -50,6 +50,8 @@ Desktop packages contain compiled Python bytecode for Deban's backend instead of
 For a GitHub Release, run `./scripts/build-macos.sh` followed by `./scripts/package-macos-release.sh` with a Developer ID certificate and Apple notarization credentials. The latter produces a signed, notarized and verified `dist/Deban-<version>-macos-arm64.dmg` and SHA-256 file. The keychain profile defaults to `deban` and can be changed with `DEBAN_NOTARY_PROFILE`. Artifacts from the ordinary desktop build workflow are not notarized.
 
 ## Record a meeting
+
+For the web app:
 
 1. Open the meeting in another browser tab.
 2. In Deban, select the source language and choose whether to include your microphone and save the recording.
