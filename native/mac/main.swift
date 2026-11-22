@@ -147,6 +147,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
     func userContentController(_ userContentController: WKUserContentController, didReceive message: WKScriptMessage,
                                replyHandler: @escaping (Any?, String?) -> Void) {
         guard message.name == "debanPermissions", message.frameInfo.isMainFrame,
+              message.frameInfo.request.url?.scheme == "http",
               message.frameInfo.securityOrigin.host == "127.0.0.1",
               message.frameInfo.securityOrigin.port == Int(port),
               let action = message.body as? String, ["status", "screen", "screenSettings", "mic", "micSettings", "onboardingDone"].contains(action) else {

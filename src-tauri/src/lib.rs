@@ -2,6 +2,7 @@ mod backend;
 
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicU16, Ordering};
 use std::time::Duration;
 
 use tauri::{
@@ -117,6 +118,7 @@ pub fn run() {
     let shared: SharedBackend = Arc::new(Mutex::new(None));
     let shared_for_setup = Arc::clone(&shared);
     let shared_for_exit = Arc::clone(&shared);
+    let backend_port = Arc::new(AtomicU16::new(0));
 
     tauri::Builder::default()
         .setup(move |app| {
@@ -143,6 +145,8 @@ pub fn run() {
                 })
                 .build(app)?;
 
+            let navigation_port = Arc::clone(&backend_port);
+            let new_window_port = Arc::clone(&backend_port);
             let win = tauri::WebviewWindowBuilder::new(
                 app,
                 "main",
@@ -187,43 +191,41 @@ pub fn run() {
                     // normal navigation in WebView2. Keep loopback previews in
                     // a webview, but send every external link to the user's
                     // default browser.
-                    .on_new_window(|url, _features| {
+                    .on_new_window(move |url, _features| {
                         let host = url.host_str().unwrap_or("");
-                        let local = host.is_empty()
-                            || host == "127.0.0.1"
-                            || host == "localhost"
-                            || host == "tauri.localhost"
-                            || host.ends_with(".localhost");
+                        let port = new_window_port.load(Ordering::Acquire);
+                        let local = port != 0 && url.scheme() == "http"
+                            && (host == "127.0.0.1" || host == "localhost")
+                            && url.port_or_known_default() == Some(port);
                         if local {
                             tauri::webview::NewWindowResponse::Allow
                         } else {
-                            let _ = open::that(url.as_str());
+                            if matches!(url.scheme(), "http" | "https" | "mailto") {
+                                let _ = open::that(url.as_str());
+                            }
                             tauri::webview::NewWindowResponse::Deny
                         }
                     })
-                    .on_navigation(|url| {
+                    .on_navigation(move |url| {
                 let host = url.host_str().unwrap_or("");
                 let scheme = url.scheme();
-                if scheme == "tauri" || scheme == "http" || scheme == "https" || scheme == "data" {
-                    if host.is_empty()
-                        || host == "127.0.0.1"
-                        || host == "localhost"
-                        || host == "tauri.localhost"
-                        || host.ends_with(".localhost")
-                    {
-                        return true;
-                    }
+                let port = navigation_port.load(Ordering::Acquire);
+                let splash = (scheme == "tauri" && host == "localhost")
+                    || (scheme == "http" && host == "tauri.localhost");
+                let backend = port != 0 && scheme == "http"
+                    && (host == "127.0.0.1" || host == "localhost")
+                    && url.port_or_known_default() == Some(port);
+                if splash || backend || url.as_str() == "about:blank" { return true; }
+                if scheme == "http" || scheme == "https" {
                     // External http(s) opens in the system browser.
-                    if scheme == "http" || scheme == "https" {
-                        let _ = open::that(url.as_str());
-                        return false;
-                    }
+                    let _ = open::that(url.as_str());
+                    return false;
                 }
                 if scheme == "mailto" {
                     let _ = open::that(url.as_str());
                     return false;
                 }
-                true
+                false
             })
             .build()?;
 
@@ -274,6 +276,7 @@ pub fn run() {
                     }
                 };
                 let port = be.port;
+                backend_port.store(port, Ordering::Release);
                 let log = be.log_path.clone();
 
                 if let Err(e) = be.wait_ready(Duration::from_secs(120)) {
