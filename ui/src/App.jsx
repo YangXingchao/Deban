@@ -7,6 +7,7 @@ import History from './views/History.jsx'
 import Library from './views/Library.jsx'
 import People from './views/People.jsx'
 import Settings from './views/Settings.jsx'
+import DesktopOnboarding from './components/DesktopOnboarding.jsx'
 import InterventionCard from './components/InterventionCard.jsx'
 import { ModalHost, modal } from './components/Modal.jsx'
 import TooltipHost from './components/TooltipHost.jsx'
@@ -52,6 +53,10 @@ function IvDock({ children, resetKey }) {
 }
 
 export default function App() {
+  const [desktopOnboarding, setDesktopOnboarding] = useState(window.__DEBAN_DESKTOP__ === true ? null : false)
+  useEffect(() => {
+    if (window.__DEBAN_DESKTOP__ === true) api('/desktop/onboarding').then(value => setDesktopOnboarding(!value?.completed))
+  }, [])
   const [view, setView] = useState('live')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [bootError, setBootError] = useState(null)
@@ -162,7 +167,7 @@ export default function App() {
         case 'notice':
           if (ev.text === 'archiving') { setToast(T('archiving')); setTimeout(() => setToast(''), 5000) }
           if (ev.text === 'auto_ended') { setToast(T('autoEnded')); setTimeout(() => setToast(''), 8000) }
-          if (ev.text === 'audio_lost') flash('captureLost')
+          if (ev.text === 'audio_lost') flash(window.__DEBAN_DESKTOP__ === true ? 'desktopAudioLost' : 'captureLost')
           break
         case 'reset':
           setUtts([]); setTopics([]); setIvs([]); setCurrentIv(null); setSuggests({})
@@ -266,7 +271,10 @@ export default function App() {
       setStarting(true)
       let candidate
       try {
-        candidate = await prepareCapture()
+        candidate = window.__DEBAN_DESKTOP__ === true
+          ? { enableMic: async () => {}, disableMic: () => {}, close: () => {},
+              start: () => ({ enableMic: async () => {}, disableMic: () => {}, close: () => {}, stop: async () => {} }) }
+          : await prepareCapture()
         const mic = !!opts.mic
         if (mic) {
           await candidate.enableMic(() => {
@@ -355,6 +363,11 @@ export default function App() {
       <div className="hint">{T('fatalLogHint')}</div>
     </div></div>
   )
+  if (desktopOnboarding === null) return null
+  if (desktopOnboarding) return <DesktopOnboarding onDone={async () => {
+    const result = await post('/desktop/onboarding', {})
+    if (result?.completed) setDesktopOnboarding(false)
+  }} />
   return (
     <div className={'shell' + (navHidden ? ' nav-collapsed' : '')}>
       <aside className="sidenav">

@@ -18,3 +18,8 @@ ai-connection.json
 /dist/
 /packaging/
 /.wrangler/
+
+.build-cache/
+src-tauri/backend/*
+!src-tauri/backend/.gitkeep
+src-tauri/target/

@@ -7,6 +7,8 @@ import sys
 import threading
 import time
 
+import numpy as np
+
 from . import config, db, meetings, localization
 from .asr import ASR, GREETING_RE as _GREETING_RE, STOCK_RE as _STOCK_RE
 from .audio.base import SAMPLE_RATE
@@ -190,6 +192,7 @@ class Pipeline:
         self.translate_q = queue.Queue()
         self.engine_q = queue.Queue()
         self.capture_seen = None
+        self.native_capture_stop = None
         self._model_lock = threading.Lock()
         self.asr_error = ""
         self.ready = False
@@ -461,6 +464,9 @@ class Pipeline:
             self.reasoning.reset_meeting()
             if self.cur_record:
                 self.recorder.start()
+                self._native_record_anchor = time.monotonic()
+                self._native_record_offset = 0
+                self._native_record_samples = {"sys": 0, "mic": 0}
         log.info("meeting %s started: participants=%s unknown=%s cap=%s locked=%s role=%s",
                  self.meeting_id, participants, unknown, self.cur_max_spk, self.roster_locked, role)
         self._pub_state()
@@ -489,6 +495,9 @@ class Pipeline:
             self._pause_started = None
             self.last_activity = time.time()
             self.state = "recording"
+            if self.cur_record:
+                self._native_record_offset = max(self._native_record_samples.values())
+                self._native_record_anchor = time.monotonic()
         self._pub_state()
 
     def end_meeting(self, expected_mid=None):
@@ -517,6 +526,8 @@ class Pipeline:
             self.cur_brief = ""
             self.live_embs = {}
             self.asr.set_glossary(glossary.load())
+        if self.native_capture_stop:
+            self.native_capture_stop(mid)
         self._pub_state()
         bus.clear_history()
         bus.publish({"type": "reset"}, store=False)
@@ -1075,6 +1086,29 @@ class Pipeline:
                     if self.cur_record:
                         self.recorder.feed(channel, audio)
                     self.vads[channel].feed(audio)
+            return True
+
+    def receive_native_audio(self, mid, channel, samples):
+        if channel not in ("sys", "mic"):
+            return False
+        with self.lock:
+            if mid != self.meeting_id:
+                return False
+            self.capture_seen = time.monotonic()
+            if self.state == "recording":
+                if self.cur_record:
+                    expected = self._native_record_offset + max(0, int((time.monotonic() - self._native_record_anchor) * SAMPLE_RATE) - len(samples))
+                    gap = expected - self._native_record_samples[channel]
+                    if gap > SAMPLE_RATE // 4:
+                        self.recorder.feed(channel, np.zeros(gap, dtype=np.float32))
+                        self._native_record_samples[channel] += gap
+                    if channel == "mic" and not self.cur_mic:
+                        samples = np.zeros_like(samples)
+                    self.recorder.feed(channel, samples)
+                    self._native_record_samples[channel] += len(samples)
+                if channel == "mic" and not self.cur_mic:
+                    return True
+                self.vads[channel].feed(samples)
             return True
 
     def _on_segment(self, channel, started_at, audio):
