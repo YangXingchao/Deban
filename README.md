@@ -2,6 +2,8 @@
 
 English | [简体中文](README.zh-CN.md) | [日本語](README.ja.md)
 
+[Website](https://deban.app/)
+
 Deban runs as a desktop app or in your browser and transcribes meeting audio on your computer. You can save the recording, edit the transcript and search past meetings. An optional AI connection enables translation, suggested replies and meeting summaries.
 
 ![Deban live meeting with example data](assets/screenshot-en.png)
@@ -20,11 +22,11 @@ Deban runs as a desktop app or in your browser and transcribes meeting audio on 
 
 ### macOS desktop app
 
-[Download Deban for Apple Silicon (macOS 15+)](https://github.com/YangXingchao/Deban/releases/download/v1.0.9/Deban-1.0.9-macos-arm64.dmg). Open the DMG and drag Deban to Applications. The app includes its local backend; no terminal, Python or Node.js installation is needed. Allow screen and system audio recording when prompted. The first launch downloads speech models.
+[Download Deban for Apple Silicon (macOS 15+)](https://github.com/YangXingchao/Deban/releases). Open the DMG and drag Deban to Applications. The app includes its local backend; no terminal, Python or Node.js installation is needed. Allow screen and system audio recording when prompted. The first launch downloads speech models.
 
 ### Windows desktop app
 
-[Download Deban for Windows x64](https://github.com/YangXingchao/Deban/releases/download/v1.0.9/Deban_1.0.9_x64-setup.exe). Run the installer and launch Deban; the local backend is included. The installer is unsigned. Allow microphone access when prompted; the first launch downloads speech models.
+[Download Deban for Windows x64](https://github.com/YangXingchao/Deban/releases). Run the installer and launch Deban; the local backend is included. The installer is unsigned. Allow microphone access when prompted; the first launch downloads speech models.
 
 ### Web app from source
 
