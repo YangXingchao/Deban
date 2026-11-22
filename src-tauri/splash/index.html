@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deban</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      display: grid;
+      place-items: center;
+      font: 15px system-ui, "Segoe UI", sans-serif;
+      color: #1c2833;
+      background: #f4f9ff;
+    }
+    @media (prefers-color-scheme: dark) {
+      body { background: #0f161d; color: #e8eef3; }
+      .d { color: #8aa0b5; }
+      .sp { border-color: #2a3a4a; border-top-color: #3b82f6; }
+    }
+    .b { text-align: center; max-width: 520px; padding: 24px; }
+    .t { font-size: 18px; font-weight: 700; margin: 14px 0 8px; }
+    .d { color: #6a89a7; white-space: pre-wrap; line-height: 1.6; font-size: 13px; }
+    .sp {
+      width: 26px; height: 26px;
+      border: 3px solid #cfdeec; border-top-color: #3b82f6;
+      border-radius: 50%; margin: 0 auto;
+      animation: r 1s linear infinite;
+    }
+    @keyframes r { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="b">
+    <div class="sp" id="spin"></div>
+    <div class="t" id="title"></div>
+    <div class="d" id="detail"></div>
+  </div>
+  <script>
+    // The app writes this whenever the user changes its UI language.  Read it
+    // before falling back to the Windows display language, so the launch page
+    // never flashes a different locale than the app itself.
+    let savedUi = ''
+    try { savedUi = localStorage.getItem('mc_ui') || '' } catch {}
+    const startupUi = new URLSearchParams(location.search).get('ui_lang') || ''
+    const locale = (startupUi || savedUi || navigator.language || 'en').toLowerCase()
+    const lang = locale.startsWith('zh') ? 'zh' : locale.startsWith('ja') ? 'ja' : 'en'
+    const copy = {
+      zh: ['正在启动 Deban…', '正在加载本地服务（语音模型在后台加载）。'],
+      ja: ['Deban を起動中…', 'ローカルサービスを読み込み中です（音声モデルはバックグラウンドで読み込まれます）。'],
+      en: ['Starting Deban…', 'Loading the local backend (speech models load in the background).'],
+    }[lang]
+    document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang
+    window.__debanSet = function (title, detail) {
+      // The Rust launcher supplies these two English defaults. Translate them
+      // here before the full app (and its saved UI preference) is available.
+      if (title === 'Starting Deban…') title = copy[0]
+      if (detail === 'Loading the local backend (speech models load in the background).') detail = copy[1]
+      document.getElementById('title').textContent = title || '';
+      document.getElementById('detail').textContent = detail || '';
+      var err = /could not|did not|error|failed/i.test(title || '');
+      document.getElementById('spin').style.display = err ? 'none' : '';
+    };
+    window.__debanSet('Starting Deban…', 'Loading the local backend (speech models load in the background).')
+  </script>
+</body>
+</html>

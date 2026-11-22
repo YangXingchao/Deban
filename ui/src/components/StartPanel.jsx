@@ -353,7 +353,7 @@ export default function StartPanel({ onStart, starting, llmOn }) {
                                           translate: llmOn && translate, mic, prev_meeting_id: prevId })}>
           <IcLive size={15} /> {T('startMeeting')}
         </button>
-        <p className="hint" style={{ marginTop: 8 }}>{T('captureChooserHint')}</p>
+        {window.__DEBAN_DESKTOP__ !== true && <p className="hint" style={{ marginTop: 8 }}>{T('captureChooserHint')}</p>}
       </div>
     </div>
   )
