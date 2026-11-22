@@ -5,6 +5,40 @@ import Darwin
 import Foundation
 import WebKit
 
+// Keep a launcher-level lock for the lifetime of the app. This is separate
+// from the backend's data lock, so the child can acquire its own lock.
+final class SingleInstanceLock {
+    private let fd: Int32
+    private init(_ fd: Int32) { self.fd = fd }
+
+    static func acquire() throws -> SingleInstanceLock? {
+        let directory = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask,
+                                                    appropriateFor: nil, create: true)
+            .appendingPathComponent("Deban-Desktop", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+        let fd = open(directory.appendingPathComponent("launcher.lock").path, O_CREAT | O_RDWR | O_CLOEXEC, S_IRUSR | S_IWUSR)
+        guard fd >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
+        guard flock(fd, LOCK_EX | LOCK_NB) == 0 else {
+            let error = errno
+            close(fd)
+            if error == EWOULDBLOCK || error == EAGAIN { return nil }
+            throw NSError(domain: NSPOSIXErrorDomain, code: Int(error))
+        }
+        return SingleInstanceLock(fd)
+    }
+
+    deinit { flock(fd, LOCK_UN); close(fd) }
+}
+
+func activateExistingDeban() {
+    guard let bundleID = Bundle.main.bundleIdentifier else { return }
+    for running in NSRunningApplication.runningApplications(withBundleIdentifier: bundleID)
+        where running.processIdentifier != getpid() {
+        running.activate(options: [.activateAllWindows])
+        return
+    }
+}
+
 func availablePort() throws -> UInt16 {
     let fd = socket(AF_INET, SOCK_STREAM, 0)
     guard fd >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno)) }
@@ -35,8 +69,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
     private var capture: NativeAudioCapture?
     private var fifo: URL?
     private var port: UInt16 = 0
+    private var launchedWithScreenCapture = true
+    private var watchingScreenCapture = false
+    private var onboardingActive = false
+    private var relaunchedForScreenGrant = false
+    private static let screenGrantRelaunchKey = "screenGrantRelaunchAt"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        launchedWithScreenCapture = CGPreflightScreenCaptureAccess()
+        if let at = UserDefaults.standard.object(forKey: Self.screenGrantRelaunchKey) as? Date {
+            UserDefaults.standard.removeObject(forKey: Self.screenGrantRelaunchKey)
+            relaunchedForScreenGrant = Date().timeIntervalSince(at) < 60
+        }
         do {
             port = try availablePort()
             let pipe = FileManager.default.temporaryDirectory.appendingPathComponent("deban-\(UUID().uuidString).fifo")
@@ -69,7 +113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         let python = resources.appendingPathComponent("backend/python/bin/python3")
         let process = Process()
         process.executableURL = python
-        process.arguments = ["-u", root.appendingPathComponent("main.py").path]
+        process.arguments = ["-u", root.appendingPathComponent("main.pyc").path]
         process.currentDirectoryURL = root
         var env = ProcessInfo.processInfo.environment
         env["MC_PORT"] = String(port)
@@ -105,10 +149,34 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         guard message.name == "debanPermissions", message.frameInfo.isMainFrame,
               message.frameInfo.securityOrigin.host == "127.0.0.1",
               message.frameInfo.securityOrigin.port == Int(port),
-              let action = message.body as? String, ["status", "screen", "mic"].contains(action) else {
+              let action = message.body as? String, ["status", "screen", "screenSettings", "mic", "micSettings", "onboardingDone"].contains(action) else {
             replyHandler(nil, "Invalid request"); return
         }
-        if action == "screen" { _ = CGRequestScreenCaptureAccess() }
+        if action == "onboardingDone" {
+            onboardingActive = false
+            replyHandler(permissionState(), nil)
+            return
+        }
+        if action == "status" || action == "screen" || action == "screenSettings" {
+            onboardingActive = true
+            watchForScreenCaptureGrant()
+        }
+        if action == "screenSettings" || action == "micSettings" {
+            let pane = action == "screenSettings" ? "Privacy_ScreenCapture" : "Privacy_Microphone"
+            guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?\(pane)"),
+                  NSWorkspace.shared.open(url) else {
+                replyHandler(nil, "Unable to open System Settings"); return
+            }
+            replyHandler(permissionState(), nil)
+            return
+        }
+        if action == "screen" {
+            DispatchQueue.main.async {
+                if !CGPreflightScreenCaptureAccess() { _ = CGRequestScreenCaptureAccess() }
+                replyHandler(self.permissionState(), nil)
+            }
+            return
+        }
         if action == "mic" {
             AVCaptureDevice.requestAccess(for: .audio) { _ in DispatchQueue.main.async { replyHandler(self.permissionState(), nil) } }
             return
@@ -135,6 +203,30 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
                 "micDenied": mic == .denied || mic == .restricted]
     }
 
+    // ScreenCaptureKit can retain the pre-grant TCC state until the process
+    // restarts. Mirror the validated desktop launcher, but only relaunch while
+    // onboarding is open so an active meeting is never interrupted.
+    private func watchForScreenCaptureGrant() {
+        guard !launchedWithScreenCapture, !watchingScreenCapture, !relaunchedForScreenGrant else { return }
+        watchingScreenCapture = true
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            while !CGPreflightScreenCaptureAccess() { Thread.sleep(forTimeInterval: 0.5) }
+            DispatchQueue.main.async {
+                guard let self, self.onboardingActive else { return }
+                self.scheduleReopenAfterExit()
+                NSApp.terminate(nil)
+            }
+        }
+    }
+
+    private func scheduleReopenAfterExit() {
+        UserDefaults.standard.set(Date(), forKey: Self.screenGrantRelaunchKey)
+        let reopen = Process()
+        reopen.executableURL = URL(fileURLWithPath: "/bin/sh")
+        reopen.arguments = ["-c", "i=0; while kill -0 \"$1\" 2>/dev/null && [ $i -lt 300 ]; do sleep 0.2; i=$((i+1)); done; exec /usr/bin/open \"$2\"", "deban-reopen", String(getpid()), Bundle.main.bundlePath]
+        do { try reopen.run() } catch { NSLog("Deban reopen helper failed: %@", error.localizedDescription) }
+    }
+
     private func fail(_ message: String) {
         let alert = NSAlert()
         alert.messageText = "Deban"
@@ -151,8 +243,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
     }
 }
 
+let instanceLock: SingleInstanceLock
+do {
+    guard let acquired = try SingleInstanceLock.acquire() else {
+        activateExistingDeban()
+        exit(0)
+    }
+    instanceLock = acquired
+} catch {
+    NSLog("Deban cannot acquire its launcher lock: %@", error.localizedDescription)
+    exit(1)
+}
+
 let application = NSApplication.shared
 let delegate = AppDelegate()
 application.delegate = delegate
 application.setActivationPolicy(.regular)
 application.run()
+withExtendedLifetime(instanceLock) {}

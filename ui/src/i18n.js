@@ -387,6 +387,8 @@ Object.assign(I18N.zh, {
   desktopScreen: '系统音频', desktopScreenHint: '允许屏幕与系统音频录制，以获取会议声音。录制会包含其他应用播放的系统声音。授权后如无法采集，请重新打开 Deban。',
   desktopMic: '麦克风（可选）', desktopMicHint: '允许麦克风以记录自己的发言。',
   desktopAllow: '设置权限', desktopGranted: '已允许', desktopContinue: '继续',
+  desktopOpenSettings: '打开系统设置', desktopScreenRequested: '如果没有弹出权限请求，请打开系统设置，在“屏幕与系统音频录制”中允许 Deban。',
+  obSub: '完成权限、个人称呼和语音模型的设置，之后可随时调整。', obWaiting: '等待系统对话框…', obOptional: '可选', obRemove: '移除', obSkip: '跳过', obLater: '稍后设置，先进入', obStart: '开始使用', onboardNamesDesc: '填写同事会怎样叫你，可添加姓名、昵称或常见同音写法。', obModel: '准备语音模型', obModelDesc: '语音识别和话者识别在本设备运行，首次使用需要下载模型。', obModelDl: '正在下载…', obModelWait: '正在准备…', obModelErr: '模型准备失败，请重试。',
   desktopPermissionError: '无法检查权限，请在系统设置中查看。', desktopPermissionLater: '也可以稍后在系统设置中更改。',
 })
 Object.assign(I18N.ja, {
@@ -395,6 +397,8 @@ Object.assign(I18N.ja, {
   desktopScreen: 'システム音声', desktopScreenHint: '会議音声を取得するため、画面とシステム音声の収録を許可してください。他のアプリのシステム音声も収録されます。許可後に取得できない場合は Deban を再起動してください。',
   desktopMic: 'マイク（任意）', desktopMicHint: '自分の発言を記録する場合はマイクを許可してください。',
   desktopAllow: '権限を設定', desktopGranted: '許可済み', desktopContinue: '続ける',
+  desktopOpenSettings: 'システム設定を開く', desktopScreenRequested: '許可のダイアログが表示されない場合は、システム設定の「画面とシステム音声の収録」で Deban を許可してください。',
+  obSub: '権限・呼び名・音声モデルを設定します。あとから変更できます。', obWaiting: 'システムのダイアログを待っています…', obOptional: '任意', obRemove: '削除', obSkip: 'スキップ', obLater: 'あとで設定して始める', obStart: '始める', onboardNamesDesc: '同僚から呼ばれる名前・ニックネーム・よくある同音表記を追加できます。', obModel: '音声モデルの準備', obModelDesc: '音声認識と話者認識はこの端末上で動きます。初回だけモデルをダウンロードします。', obModelDl: 'ダウンロード中…', obModelWait: '準備中…', obModelErr: 'モデルの準備に失敗しました。再試行してください。',
   desktopPermissionError: '権限を確認できません。システム設定を確認してください。', desktopPermissionLater: '後からシステム設定で変更できます。',
 })
 Object.assign(I18N.en, {
@@ -403,6 +407,8 @@ Object.assign(I18N.en, {
   desktopScreen: 'System audio', desktopScreenHint: 'Allow screen and system audio recording. System audio from other apps is also captured. If capture is unavailable after granting access, reopen Deban.',
   desktopMic: 'Microphone (optional)', desktopMicHint: 'Allow microphone access to record your own speech.',
   desktopAllow: 'Set permission', desktopGranted: 'Allowed', desktopContinue: 'Continue',
+  desktopOpenSettings: 'Open System Settings', desktopScreenRequested: 'If no permission prompt appears, open System Settings and allow Deban under Screen & System Audio Recording.',
+  obSub: 'Set permissions, the names people use for you, and the speech model. You can change them later.', obWaiting: 'Waiting for the system dialog…', obOptional: 'optional', obRemove: 'Remove', obSkip: 'Skip', obLater: 'Set up later, enter now', obStart: 'Start', onboardNamesDesc: 'Add the names, nicknames or common homophones colleagues use for you.', obModel: 'Prepare speech models', obModelDesc: 'Speech and speaker recognition run on this device. Models are downloaded on first use.', obModelDl: 'Downloading…', obModelWait: 'Preparing…', obModelErr: 'Model preparation failed. Please retry.',
   desktopPermissionError: 'Could not check permissions. Check your system settings.', desktopPermissionLater: 'You can change these permissions later in system settings.',
 })
 

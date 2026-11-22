@@ -1219,3 +1219,29 @@ select:disabled { opacity: .5; cursor: not-allowed; }
 .desktop-onboarding-card section { padding: 16px 0; border-bottom: 1px solid var(--border); }
 .desktop-onboarding-card h2, .desktop-onboarding-card h3 { margin: 0 0 8px; }
 .desktop-onboarding-card p { line-height: 1.5; }
+
+.onboard { min-height: 100vh; display: grid; place-items: center; background: var(--bg); padding: 24px; }
+.ob-card { width: min(640px, 100%); background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 26px 28px; box-shadow: var(--shadow-lg); }
+.ob-head { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+.ob-head .mark { width: 40px; height: 40px; border-radius: 12px; overflow: hidden; flex: none; }
+.ob-head .mark img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.ob-title { font-size: 19px; font-weight: 800; }
+.ob-sub { font-size: 13px; color: var(--dim); margin-top: 2px; }
+.ob-step { display: flex; gap: 14px; padding: 14px 0; border-top: 1px solid var(--border); }
+.ob-model { display: flex; flex-direction: column; gap: 6px; }
+.ob-bar { height: 6px; border-radius: 3px; background: var(--surface2); overflow: hidden; }
+.ob-bar-in { height: 100%; background: var(--accent); border-radius: 3px; transition: width .4s ease; }
+.ob-model-ok { font-size: 13px; color: var(--green); font-weight: 600; }
+.ob-n { width: 28px; height: 28px; border-radius: 50%; flex: none; display: grid; place-items: center; font-weight: 800; font-size: 13px; background: var(--surface2); color: var(--text2); }
+.ob-step.ok .ob-n { background: var(--green); color: #fff; }
+.ob-body { flex: 1; min-width: 0; }
+.ob-t { font-size: 14.5px; font-weight: 700; }
+.ob-t .ob-opt { font-size: 11px; font-weight: 600; color: var(--dim); margin-left: 8px; border: 1px solid var(--border2); border-radius: 99px; padding: 0 7px; }
+.ob-d { font-size: 13px; color: var(--text2); line-height: 1.55; margin-top: 3px; }
+.ob-act { margin-top: 10px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.ob-row { display: flex; gap: 8px; width: 100%; }
+.ob-row input { flex: 1; }
+.ob-name-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 0; }
+.ob-name-list .chip-x { border: 0; background: transparent; color: inherit; cursor: pointer; padding: 0 0 0 5px; font: inherit; }
+.ob-hint { font-size: 12.5px; color: var(--amber); margin-top: 6px; }
+.ob-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }

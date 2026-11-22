@@ -41,12 +41,35 @@ try {
   if ($LASTEXITCODE -ne 0) { throw 'Dependency export failed' }
   & uv pip install --python $Python -r $Requirements
   if ($LASTEXITCODE -ne 0) { throw 'Dependency installation failed' }
+  # PyTorch's DLLs need a matching VC++ runtime even on clean machines. Keep
+  # the complete set together beside c10.dll, as in the validated build.
+  $RuntimeNames = @('msvcp140.dll', 'msvcp140_atomic_wait.dll', 'vcruntime140.dll', 'vcruntime140_1.dll')
+  $RuntimeDir = Join-Path $env:SystemRoot 'System32'
+  if (@($RuntimeNames | Where-Object { -not (Test-Path (Join-Path $RuntimeDir $_)) }).Count -gt 0) {
+    $RedistRoot = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio'
+    $RuntimeDir = Get-ChildItem -Path $RedistRoot -Recurse -Filter 'msvcp140.dll' -File -ErrorAction SilentlyContinue |
+      Where-Object { $_.FullName -match '\\x64\\Microsoft\.VC[0-9]+\.CRT\\msvcp140\.dll$' } |
+      Sort-Object { $_.VersionInfo.FileVersion } -Descending | Select-Object -First 1 -ExpandProperty DirectoryName
+  }
+  if (-not $RuntimeDir) { throw 'The x64 VC++ runtime was not found; install the MSVC redistributable.' }
+  $TorchLib = Join-Path $Backend 'python\Lib\site-packages\torch\lib'
+  if (-not (Test-Path $TorchLib)) { throw "PyTorch DLL directory missing: $TorchLib" }
+  foreach ($name in $RuntimeNames) {
+    $source = Join-Path $RuntimeDir $name
+    if (-not (Test-Path $source)) { throw "Required VC++ runtime DLL missing: $source" }
+    Copy-Item -LiteralPath $source -Destination (Join-Path $TorchLib $name) -Force
+  }
   $AppRoot = Join-Path $Backend 'approot'
   New-Item -ItemType Directory -Force (Join-Path $AppRoot 'ui') | Out-Null
   Copy-Item -Recurse (Join-Path $Root 'app') $AppRoot
   Get-ChildItem -Path (Join-Path $AppRoot 'app') -Directory -Filter '__pycache__' -Recurse | Remove-Item -Recurse -Force
   Copy-Item (Join-Path $Root 'main.py') $AppRoot
   Copy-Item -Recurse (Join-Path $Root 'ui\dist') (Join-Path $AppRoot 'ui')
+  & $Python -m compileall -q -b (Join-Path $AppRoot 'app') (Join-Path $AppRoot 'main.py')
+  if ($LASTEXITCODE -ne 0) { throw 'Backend bytecode compilation failed' }
+  Get-ChildItem -Path (Join-Path $AppRoot 'app') -Filter '*.py' -File -Recurse | Remove-Item -Force
+  Remove-Item -LiteralPath (Join-Path $AppRoot 'main.py') -Force
+  if (-not (Test-Path (Join-Path $AppRoot 'main.pyc')) -or @(Get-ChildItem -Path (Join-Path $AppRoot 'app') -Filter '*.py' -File -Recurse).Count -ne 0) { throw 'Backend source stripping failed' }
   Push-Location $Tauri
   try {
     & cargo tauri build
