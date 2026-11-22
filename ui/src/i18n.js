@@ -293,6 +293,7 @@ meTag: 'you', micOn: 'Mic capturing', micOff: 'Mic off (Settings → General)',
 }
 
 Object.assign(I18N.zh, {
+  aboutTitle: '关于 Deban', aboutDescription: 'Deban 是一款以本地为先的 AI 会议助手。', aboutVersion: '版本', aboutWebsite: '官方网站',
   langChinese: '中文',
   fatalTitle: 'Deban 无法启动', fatalDbTooNew: '这台电脑上的数据是由更新版本的 Deban 创建的，当前版本无法打开。请更新到最新版本；数据没有被修改。', fatalDbError: '打开或迁移数据时出错。迁移前的备份已保存在数据文件夹的 backups 目录中，数据不会丢失。请重试。', fatalGeneric: '启动时发生错误。请重试。', fatalRetry: '重试', fatalLogHint: '详细日志见数据目录中的 app.log',
   modelLoading: '正在加载本地语音模型…', modelLoadingToast: '正在加载本地语音模型。首次启动时需要下载模型，可能要几分钟；请稍候再开始会议。',
@@ -300,6 +301,7 @@ Object.assign(I18N.zh, {
   setSecLang: '语言', setSecRecord: '录音与麦克风', setSecAlerts: '提醒', setSecMeeting: '会议',
 })
 Object.assign(I18N.ja, {
+  aboutTitle: 'Deban について', aboutDescription: 'Deban はローカルファーストの AI 会議アシスタントです。', aboutVersion: 'バージョン', aboutWebsite: '公式サイト',
   langChinese: '中国語',
   fatalTitle: 'Deban を起動できません', fatalDbTooNew: 'この端末のデータは新しいバージョンの Deban で作成されたため、このバージョンでは開けません。最新版にアップデートしてください。データは変更されていません。', fatalDbError: 'データを開く、または移行する際にエラーが発生しました。移行前のバックアップはデータフォルダの backups に保存されており、データは失われません。', fatalGeneric: '起動時にエラーが発生しました。', fatalRetry: '再試行', fatalLogHint: '詳細ログはデータディレクトリの app.log にあります。',
   modelLoading: 'ローカル音声モデルを読み込み中…', modelLoadingToast: 'ローカル音声モデルを読み込んでいます。初回起動時はダウンロードに数分かかることがあります。少し待ってから会議を開始してください。',
@@ -307,6 +309,7 @@ Object.assign(I18N.ja, {
   setSecLang: '言語', setSecRecord: '録音とマイク', setSecAlerts: '通知', setSecMeeting: '会議',
 })
 Object.assign(I18N.en, {
+  aboutTitle: 'About Deban', aboutDescription: 'Deban is a local-first AI meeting assistant.', aboutVersion: 'Version', aboutWebsite: 'Official website',
   langChinese: 'Chinese',
   fatalTitle: 'Deban could not start', fatalDbTooNew: 'The data on this computer was created by a newer version of Deban and cannot be opened by this one. Please update to the latest version; nothing has been changed.', fatalDbError: 'Opening or migrating your data failed. A pre-migration backup is kept in the backups folder of the data directory, so nothing is lost. Try again.', fatalGeneric: 'Something went wrong while starting. Try again.', fatalRetry: 'Retry', fatalLogHint: 'See app.log in the data directory for details.',
   modelLoading: 'Loading the local speech model…', modelLoadingToast: 'Loading the local speech model. The first launch downloads the speech model and may take a few minutes. Please start the meeting in a moment.',
