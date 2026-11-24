@@ -76,6 +76,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
     private static let screenGrantRelaunchKey = "screenGrantRelaunchAt"
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        installMainMenu()
         launchedWithScreenCapture = CGPreflightScreenCaptureAccess()
         if let at = UserDefaults.standard.object(forKey: Self.screenGrantRelaunchKey) as? Date {
             UserDefaults.standard.removeObject(forKey: Self.screenGrantRelaunchKey)
@@ -105,6 +106,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         } catch {
             fail("Unable to start Deban: \(error.localizedDescription)")
         }
+    }
+
+    private func installMainMenu() {
+        let mainMenu = NSMenu()
+        let appItem = NSMenuItem()
+        mainMenu.addItem(appItem)
+        let appMenu = NSMenu()
+        appMenu.addItem(withTitle: "Quit Deban", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
+        appItem.submenu = appMenu
+
+        // Send standard editing commands to the focused responder, including WKWebView.
+        let editItem = NSMenuItem()
+        mainMenu.addItem(editItem)
+        let editMenu = NSMenu(title: "Edit")
+        editMenu.addItem(withTitle: "Cut", action: #selector(NSText.cut(_:)), keyEquivalent: "x")
+        editMenu.addItem(withTitle: "Copy", action: #selector(NSText.copy(_:)), keyEquivalent: "c")
+        editMenu.addItem(withTitle: "Paste", action: #selector(NSText.paste(_:)), keyEquivalent: "v")
+        editMenu.addItem(withTitle: "Select All", action: #selector(NSText.selectAll(_:)), keyEquivalent: "a")
+        editItem.submenu = editMenu
+
+        let windowItem = NSMenuItem()
+        mainMenu.addItem(windowItem)
+        let windowMenu = NSMenu(title: "Window")
+        windowMenu.addItem(withTitle: "Close Window", action: #selector(NSWindow.performClose(_:)), keyEquivalent: "w")
+        windowItem.submenu = windowMenu
+        NSApp.mainMenu = mainMenu
     }
 
     private func launchBackend(pipe: URL) throws {
@@ -236,7 +263,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate, WKNa
         NSApp.terminate(nil)
     }
 
-    func windowWillClose(_ notification: Notification) { NSApp.terminate(nil) }
+    func windowShouldClose(_ sender: NSWindow) -> Bool {
+        sender.orderOut(nil)
+        return false
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !flag { window?.makeKeyAndOrderFront(nil) }
+        return true
+    }
+
     func applicationWillTerminate(_ notification: Notification) {
         capture?.stop()
         if backend?.isRunning == true { backend?.terminate() }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
+import { isImeKey } from './keyboard.js'
 import { T, onLangChange } from './i18n.js'
 import { api, post } from './api.js'
 import { prepareCapture } from './capture.js'
@@ -404,7 +405,7 @@ export default function App() {
             if (live && titleEdit !== null) {
               return <input className="title-edit" autoFocus value={titleEdit} maxLength={40}
                             onChange={(e) => setTitleEdit(e.target.value)} onBlur={commitTitle}
-                            onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) commitTitle(); if (e.key === 'Escape') setTitleEdit(null) }} />
+                            onKeyDown={(e) => { if (e.key === 'Enter' && !isImeKey(e)) commitTitle(); if (e.key === 'Escape' && !isImeKey(e)) setTitleEdit(null) }} />
             }
             return <h2 className={live ? 'editable' : ''} title={live ? T('renameMtgTip') : undefined}
                        onClick={live ? () => setTitleEdit(shown) : undefined}>{shown}</h2>
@@ -438,7 +439,7 @@ export default function App() {
           {settingsOpen && (
             <>
               <div className="iv-backdrop" style={{ zIndex: 120 }} onClick={() => setSettingsOpen(false)} />
-              <div className="modal settings-dialog" onKeyDown={(e) => { if (e.key === 'Escape') setSettingsOpen(false) }}>
+              <div className="modal settings-dialog" onKeyDown={(e) => { if (e.key === 'Escape' && !isImeKey(e)) setSettingsOpen(false) }}>
                 <div className="m-title settings-dialog-title">{T('settings')}<button className="drawer-x" onClick={() => setSettingsOpen(false)} aria-label={T('close')}><IcX size={15} /></button></div>
                 <div className="m-body settings-body"><Settings mode={mode} llmOn={llmOn} /></div>
               </div>

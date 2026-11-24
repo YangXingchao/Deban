@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { isImeKey } from '../keyboard.js'
 import { T } from '../i18n.js'
 import { IcX } from './Icons.jsx'
 
@@ -39,7 +40,7 @@ export function ModalHost() {
   }, [m])
   useEffect(() => {
     if (!m) return
-    const h = (e) => { if (e.key === 'Escape') { setM(null); m.resolve(m.type === 'confirm' ? false : null) } }
+    const h = (e) => { if (e.key === 'Escape' && !isImeKey(e)) { setM(null); m.resolve(m.type === 'confirm' ? false : null) } }
     window.addEventListener('keydown', h)
     return () => window.removeEventListener('keydown', h)
   }, [m])
@@ -62,7 +63,8 @@ export function ModalHost() {
   const cancel = () => close(m.type === 'confirm' ? false : null)
   const dismiss = () => close(null)
   const onKey = (e) => {
-    if (e.key === 'Enter' && !e.nativeEvent.isComposing
+    if (isImeKey(e)) return
+    if (e.key === 'Enter'
         && (m.type === 'prompt' || m.type === 'confirm')
         && e.target.tagName !== 'BUTTON') { e.preventDefault(); ok() }
     if (e.key === 'Escape') dismiss()
@@ -137,7 +139,7 @@ export function ModalHost() {
                 <div className="pick-reg">
                   <input type="text" value={regName} placeholder={m.register.placeholder} maxLength={30}
                          onChange={(e) => setRegName(e.target.value)}
-                         onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing && regName.trim()) { e.preventDefault(); close({ register: regName.trim() }) } }} />
+                         onKeyDown={(e) => { if (e.key === 'Enter' && !isImeKey(e) && regName.trim()) { e.preventDefault(); close({ register: regName.trim() }) } }} />
                   <button className="primary" disabled={!regName.trim()} onClick={() => close({ register: regName.trim() })}>{m.register.button}</button>
                 </div>
               )}

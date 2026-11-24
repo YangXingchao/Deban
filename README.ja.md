@@ -2,7 +2,7 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md) | 日本語
 
-[公式サイト](https://deban.app/)
+[公式サイト](https://deban.app/) · [デスクトップ版の最新版](https://github.com/YangXingchao/Deban/releases/latest) · [変更履歴](CHANGELOG.md)
 
 Deban はデスクトップアプリまたはブラウザで動作し、会議の音声を手元のコンピューターで文字起こしします。録音の保存、文字起こしの編集、過去の会議の検索ができます。AI 接続を設定すると、翻訳、回答案、会議の要約も利用できます。
 
@@ -22,11 +22,11 @@ Deban はデスクトップアプリまたはブラウザで動作し、会議�
 
 ### macOS デスクトップ版
 
-[Deban をダウンロード（Apple Silicon、macOS 15 以降）](https://github.com/YangXingchao/Deban/releases)。DMG を開き、Deban を「アプリケーション」にドラッグします。ローカルバックエンドは同梱され、ターミナルや Python、Node.js のインストールは不要です。画面とシステム音声の収録を許可してください。初回起動時に音声モデルがダウンロードされます。
+[Deban をダウンロード（Apple Silicon、macOS 15 以降）](https://github.com/YangXingchao/Deban/releases/latest)。DMG を開き、Deban を「アプリケーション」にドラッグします。ローカルバックエンドは同梱され、ターミナルや Python、Node.js のインストールは不要です。画面とシステム音声の収録を許可してください。初回起動時に音声モデルがダウンロードされます。 ウィンドウを閉じても Deban は起動したままです。Dock のアイコンをクリックすると再表示でき、Command–Q で終了できます。
 
 ### Windows デスクトップ版
 
-[Deban Windows x64 インストーラーをダウンロード](https://github.com/YangXingchao/Deban/releases)。インストーラーを実行して Deban を起動します。ローカルバックエンドは同梱されています。インストーラーは未署名です。必要に応じてマイクを許可してください。初回起動時に音声モデルをダウンロードします。
+[Deban Windows x64 インストーラーをダウンロード](https://github.com/YangXingchao/Deban/releases/latest)。インストーラーを実行して Deban を起動します。ローカルバックエンドは同梱されています。インストーラーは未署名です。必要に応じてマイクを許可してください。初回起動時に音声モデルをダウンロードします。
 
 ### ソースから Web 版を起動
 
