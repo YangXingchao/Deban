@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { isImeKey } from '../keyboard.js'
 import { T } from '../i18n.js'
 import { api, post } from '../api.js'
 
@@ -92,7 +93,7 @@ export default function DesktopOnboarding({ onDone }) {
         <button className="chip-x" aria-label={`${T('obRemove')} ${name}`} onClick={() => saveNames(names.filter(n => n !== name))}>✕</button>
       </span>)}</div>
       <div className="ob-row"><input value={nameInput} placeholder={T('myNamesPh')} maxLength={20}
-        onChange={e => setNameInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); addName() } }} />
+        onChange={e => setNameInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter' && !isImeKey(e)) { e.preventDefault(); addName() } }} />
         <button onClick={addName} disabled={!nameInput.trim()}>{T('add')}</button></div>
     </Step>
     <Step n={screenRelevant ? 4 : 3} ok={modelOk} title={T('obModel')} desc={T('obModelDesc')}>

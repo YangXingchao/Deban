@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { isImeKey } from '../keyboard.js'
 import { T } from '../i18n.js'
 import { api, post, upload } from '../api.js'
 import { memberTip } from './splitFlow.js'
@@ -268,7 +269,7 @@ export default function StartPanel({ onStart, starting, llmOn }) {
               <div className="pick-reg">
                 <input type="text" value={newName} placeholder={T('secNew')} maxLength={30}
                        onChange={(e) => setNewName(e.target.value)}
-                       onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); addPerson() } }} />
+                       onKeyDown={(e) => { if (e.key === 'Enter' && !isImeKey(e)) { e.preventDefault(); addPerson() } }} />
                 <button className="primary" disabled={!newName.trim()} onClick={addPerson}>{T('registerBtn')}</button>
               </div>
             </div>

@@ -2,7 +2,7 @@
 
 [English](README.md) | 简体中文 | [日本語](README.ja.md)
 
-[官方网站](https://deban.app/)
+[官方网站](https://deban.app/) · [桌面版最新版本](https://github.com/YangXingchao/Deban/releases/latest) · [更新日志](CHANGELOG.md)
 
 Deban 可作为桌面应用或在浏览器中运行，在电脑本地转写会议音频。你可以保存录音、编辑字幕和搜索历史会议。配置 AI 连接后，还可以使用翻译、建议回答和会议总结。
 
@@ -22,11 +22,11 @@ Deban 可作为桌面应用或在浏览器中运行，在电脑本地转写会�
 
 ### macOS 桌面版
 
-[下载 Deban（Apple Silicon，macOS 15 或更高版本）](https://github.com/YangXingchao/Deban/releases)。打开 DMG，将 Deban 拖入“应用程序”。应用已包含本地后端，无需终端，也不需要安装 Python 或 Node.js。按提示允许屏幕和系统音频录制；首次启动会下载语音模型。
+[下载 Deban（Apple Silicon，macOS 15 或更高版本）](https://github.com/YangXingchao/Deban/releases/latest)。打开 DMG，将 Deban 拖入“应用程序”。应用已包含本地后端，无需终端，也不需要安装 Python 或 Node.js。按提示允许屏幕和系统音频录制；首次启动会下载语音模型。 关闭窗口后 Deban 会继续运行。点击 Dock 图标可重新打开窗口，按 Command–Q 可退出。
 
 ### Windows 桌面版
 
-[下载 Deban Windows x64 安装包](https://github.com/YangXingchao/Deban/releases)。运行安装程序后打开 Deban，应用已包含本地后端。安装包未签名；请按提示允许麦克风访问，首次启动会下载语音模型。
+[下载 Deban Windows x64 安装包](https://github.com/YangXingchao/Deban/releases/latest)。运行安装程序后打开 Deban，应用已包含本地后端。安装包未签名；请按提示允许麦克风访问，首次启动会下载语音模型。
 
 ### 从源码运行 Web 版
 

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isImeKey } from '../keyboard.js'
 import { T, getUiLang, setUiLang } from '../i18n.js'
 import { api, post, put, del } from '../api.js'
 import InfoTip from '../components/InfoTip.jsx'
@@ -176,7 +177,7 @@ export default function Settings({ mode, llmOn }) {
           </div>}
           <input type="text" value={nameInput} placeholder={T('myNamesPh')} maxLength={20}
                  onChange={(e) => setNameInput(e.target.value)}
-                 onKeyDown={(e) => { if ((e.key === 'Enter' && !e.nativeEvent.isComposing) || e.key === ',') { e.preventDefault(); addName() } }}
+                 onKeyDown={(e) => { if (!isImeKey(e) && (e.key === 'Enter' || e.key === ',')) { e.preventDefault(); addName() } }}
                  onBlur={addName} style={{ width: '100%' }} />
           <div className="hint" style={{ marginTop: 6 }}>{T('myNamesHint')}</div>
         </div>
@@ -193,7 +194,7 @@ export default function Settings({ mode, llmOn }) {
           </div>}
           <input type="text" value={expInput} placeholder={T('expPh')} style={{ width: '100%' }} maxLength={30}
                  onChange={(e) => setExpInput(e.target.value)}
-                 onKeyDown={(e) => { if ((e.key === 'Enter' && !e.nativeEvent.isComposing) || e.key === ',') { e.preventDefault(); addExp() } }}
+                 onKeyDown={(e) => { if (!isImeKey(e) && (e.key === 'Enter' || e.key === ',')) { e.preventDefault(); addExp() } }}
                  onBlur={addExp} />
         </div>
       </div>

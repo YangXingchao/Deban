@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { isImeKey } from '../keyboard.js'
 import { T } from '../i18n.js'
 import { api, post, del } from '../api.js'
 import { modal } from '../components/Modal.jsx'
@@ -334,7 +335,7 @@ export default function Live({ mode, startedAt, meetingId, ctl, utts, topics, iv
             <label className="sr-only" htmlFor="meeting-question">{T('askMeeting')}</label>
             <textarea id="meeting-question" value={question} onChange={(e) => setQuestion(e.target.value)}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing && e.keyCode !== 229) {
+                        if (e.key === 'Enter' && !e.shiftKey && !isImeKey(e)) {
                           e.preventDefault()
                           e.currentTarget.form.requestSubmit()
                         }

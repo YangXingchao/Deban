@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+- macOS and Windows: Confirming an input method candidate with Enter no longer submits the field.
+- macOS: Restore Command shortcuts for cut, copy, paste, and select all.
+- macOS: Closing the window keeps Deban running. Click its Dock icon to reopen the window, or press Command–Q to quit.
+
 ## 1.0.0
 
 ### Initial release

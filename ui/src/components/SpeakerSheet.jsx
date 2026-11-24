@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { isImeKey } from '../keyboard.js'
 import { T } from '../i18n.js'
 import { IcX } from './Icons.jsx'
 import { api, post } from '../api.js'
@@ -98,7 +99,7 @@ export default function SpeakerSheet({ open, spk, name, named, meetingId, mode, 
   return (
     <>
       <div className="drawer-backdrop" style={{ zIndex: 120 }} onClick={onClose} />
-      <div className="drawer spk-sheet" style={{ zIndex: 121 }} onKeyDown={(e) => { if (e.key === 'Escape') onClose() }}>
+      <div className="drawer spk-sheet" style={{ zIndex: 121 }} onKeyDown={(e) => { if (e.key === 'Escape' && !isImeKey(e)) onClose() }}>
         <div className="drawer-head">{T('sheetTitle')}<button className="drawer-x" onClick={onClose} aria-label={T('close')}><IcX size={15} /></button></div>
         <div className="ss-who"><span className="nm">{name}</span><span className="cnt">{T('sheetCount', count)}</span></div>
         <div className="m-body">
@@ -137,7 +138,7 @@ export default function SpeakerSheet({ open, spk, name, named, meetingId, mode, 
             <div className="ss-new">
               <input type="text" value={newName} placeholder={named ? T('secNewChange') : T('secNew')} maxLength={30}
                      onChange={(e) => setNewName(e.target.value)}
-                     onKeyDown={(e) => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) register() }} />
+                     onKeyDown={(e) => { if (e.key === 'Enter' && !isImeKey(e)) register() }} />
               <button className="primary" disabled={!newName.trim() || busy} onClick={register}>{T('registerBtn')}</button>
             </div>
             {count === 0 ? (
