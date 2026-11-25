@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from . import config, db
 
@@ -52,12 +53,35 @@ def speaker_labels(meeting_id):
     return labels
 
 
+def topic_rows(meeting_id):
+    return db.query("SELECT * FROM topics WHERE meeting_id=? ORDER BY id", (meeting_id,))
+
+
+def live_topics(meeting_id):
+    if meeting_id is None:
+        return []
+    topics = []
+    for row in topic_rows(meeting_id):
+        start = row["start_ts"]
+        end = row["end_ts"]
+        time_range = ""
+        if start is not None and end is not None:
+            time_range = f"{datetime.datetime.fromtimestamp(start):%H:%M}~{datetime.datetime.fromtimestamp(end):%H:%M}"
+        topics.append({
+            "range": time_range,
+            "title": row["title"],
+            "title_src": row["title_src"] or "",
+            "points": json.loads(row["points"] or "[]"),
+        })
+    return topics
+
+
 def detail(meeting_id):
     m = db.query_one("SELECT * FROM meetings WHERE id=?", (meeting_id,))
     if not m:
         return None
     utts = db.query("SELECT * FROM utterances WHERE meeting_id=? ORDER BY start_time", (meeting_id,))
-    topics = db.query("SELECT * FROM topics WHERE meeting_id=? ORDER BY id", (meeting_id,))
+    topics = topic_rows(meeting_id)
     ivs = db.query("SELECT * FROM interventions WHERE meeting_id=? ORDER BY id", (meeting_id,))
     spk_ids = {u["speaker_id"] for u in utts}
     names = speaker_labels(meeting_id)

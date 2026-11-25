@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.2
+
+- Fix missing topic summary cards during a meeting. The live view now shows all saved topics, including after reconnecting.
+
 ## 1.0.1
 
 - macOS and Windows: Confirming an input method candidate with Enter no longer submits the field.

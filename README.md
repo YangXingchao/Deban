@@ -14,6 +14,7 @@ Deban runs as a desktop app or in your browser and transcribes meeting audio on 
 - **Speaker management** — Recognize speakers with local voiceprints, identify your own microphone channel, manage participants and correct speaker assignments.
 - **Meeting assistance** — Configure an AI provider to translate speech, identify moments when you may want to respond, suggest replies in different tones, and generate topic summaries, decisions and action items.
 - **Meeting context** — Add a meeting brief, personal profile, glossary and reference documents. Select materials and their priority for each meeting, and carry context forward from an earlier meeting.
+- **Live topic summaries** — With an AI provider configured, see all saved topic summaries during the meeting, including after reconnecting.
 - **Meeting history** — Search and review meetings, edit or split transcript entries, add notes, play saved audio, and export transcripts as Markdown or SRT.
 - **Local data and backups** — Keep meeting data on your computer, manage deleted items, and export or import `.deban` archives. Choose whether to include voiceprints in a backup.
 - **Language and AI settings** — Use the interface in English, Japanese, Simplified Chinese or Traditional Chinese. Connect your own AI provider and configure its model and key.
