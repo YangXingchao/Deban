@@ -1204,15 +1204,25 @@ def events():
     def gen():
         try:
             snap = pipeline.snapshot()
-            snapshot = {**snap, "mode": snap["state"], "type": "state", "id": -1}
+            mid = snap["meeting_id"]
+            snapshot = {**snap, "mode": snap["state"], "type": "state", "id": -1,
+                        "topics": meetings.live_topics(mid)}
             yield f"data: {json.dumps(snapshot, ensure_ascii=False)}\n\n"
             cfg = config.load()
             yield f"data: {json.dumps({'type': 'settings', 'src_lang': cfg['src_lang'], 'out_lang': cfg['out_lang'], 'max_spk': cfg['max_spk'], 'record_audio': cfg['record_audio'], 'id': -1}, ensure_ascii=False)}\n\n"
             for ev in history:
+                if ev["type"] == "topic":
+                    continue
                 yield f"data: {json.dumps({**ev, 'replay': True}, ensure_ascii=False)}\n\n"
             while True:
                 try:
                     ev = q.get(timeout=15)
+                    if ev["type"] == "state" and "meeting_id" in ev and ev["meeting_id"] != mid:
+                        mid = ev["meeting_id"]
+                        ev = {**ev, "topics": meetings.live_topics(mid)}
+                    elif ev["type"] == "topic":
+                        # A topic event indicates a change, but the saved list is authoritative.
+                        ev = {"type": "topics", "topics": meetings.live_topics(mid)}
                     yield f"data: {json.dumps(ev, ensure_ascii=False)}\n\n"
                 except _q.Empty:
                     yield ": keepalive\n\n"

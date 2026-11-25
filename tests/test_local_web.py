@@ -7,6 +7,54 @@ from test_data_layer import run
 
 
 class LocalWebTests(unittest.TestCase):
+    def test_live_topics_restore_saved_cards_missing_from_event_history(self):
+        with tempfile.TemporaryDirectory() as data_dir:
+            result = run("""
+import asyncio
+import json
+from app import db
+from app.events import bus
+from app.server import events, pipeline
+
+mid = db.insert("meetings", {"started_at": 1, "created_at": 1})
+other = db.insert("meetings", {"started_at": 2, "created_at": 2})
+pipeline.meeting_id = mid
+pipeline.state = "recording"
+
+def save(meeting_id, title):
+    return db.insert("topics", {"meeting_id": meeting_id, "title": title})
+
+save(mid, "Earlier topic")
+latest = save(mid, "Latest topic")
+save(other, "Other meeting")
+bus.publish({"type": "topic", "topic_id": latest, "title": "Stale replay"})
+
+async def check():
+    stream = events().body_iterator
+    async def read():
+        return json.loads((await anext(stream)).removeprefix("data: "))
+
+    try:
+        initial = await read()
+        await read()  # settings
+        db.execute("UPDATE topics SET title=? WHERE id=?", ("Updated topic", latest))
+        bus.publish({"type": "topic", "topic_id": latest})
+        update = await read()
+        bus.publish({"type": "state", "meeting_id": other}, store=False)
+        switched = await read()
+        print(json.dumps([[topic["title"] for topic in event["topics"]]
+                          for event in (initial, update, switched)]))
+    finally:
+        await stream.aclose()
+
+asyncio.run(check())
+""", pathlib.Path(data_dir))
+        self.assertEqual(result, [
+            ["Earlier topic", "Latest topic"],
+            ["Earlier topic", "Updated topic"],
+            ["Other meeting"],
+        ])
+
     def test_capture_payload_and_origin(self):
         with tempfile.TemporaryDirectory() as data_dir:
             result = run("""

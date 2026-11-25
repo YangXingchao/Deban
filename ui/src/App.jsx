@@ -127,7 +127,7 @@ export default function App() {
     const es = new EventSource('/events')
     es.onopen = () => {
       setConn('ok')
-      setUtts([]); setTopics([]); setIvs([])
+      setUtts([]); setIvs([])
       liveRef.current.armed = false
       setTimeout(() => { liveRef.current.armed = true }, 1500)
     }
@@ -144,6 +144,7 @@ export default function App() {
         case 'state':
           if ('mode' in ev) setMode(ev.mode)
           if ('meeting_id' in ev) setMeetingId(ev.meeting_id || null)
+          if ('topics' in ev) setTopics(ev.topics)
           if ('started_at' in ev) setStartedAt(ev.started_at || null)
           if ('title' in ev) setLiveTitle(ev.title || '')
           if ('llm_on' in ev) setLlmOn(ev.llm_on !== false)
@@ -171,7 +172,7 @@ export default function App() {
           if (ev.text === 'audio_lost') flash(window.__DEBAN_DESKTOP__ === true ? 'desktopAudioLost' : 'captureLost')
           break
         case 'reset':
-          setUtts([]); setTopics([]); setIvs([]); setCurrentIv(null); setSuggests({})
+          setUtts([]); setIvs([]); setCurrentIv(null); setSuggests({})
           break
         case 'spk_suggest':
           setSuggests((m) => ({ ...m, [ev.spk]: { member: ev.member, name: ev.name } }))
@@ -191,12 +192,8 @@ export default function App() {
             return f ? { ...x, text: f.text, zh: f.translation || x.zh, revised: true } : x
           }))
           break
-        case 'topic':
-          setTopics((t) => {
-            const i = t.findIndex((x) => x.topic_id === ev.topic_id)
-            if (i < 0) return [...t, ev]
-            const next = [...t]; next[i] = ev; return next
-          })
+        case 'topics':
+          setTopics(ev.topics)
           break
         case 'intervention_pre': {
           if (ev.replay || !liveRef.current.armed) break
