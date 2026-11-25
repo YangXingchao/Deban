@@ -3,6 +3,7 @@
 ## 1.0.2
 
 - Fix missing topic summary cards during a meeting. The live view now shows all saved topics, including after reconnecting.
+- Update PyAV to 18.1.1 to include upstream audio-decoding fixes.
 
 ## 1.0.1
 
